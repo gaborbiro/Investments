@@ -1,16 +1,16 @@
 package dev.gaborbiro.investments.model
 
-class FTErrorResponse(
+data class FTErrorResponse(
     val error: FTError,
 )
 
-class FTError(
+data class FTError(
     val code: Int,
     val message: String,
     val errors: List<FTErrorItem>,
 )
 
-class FTErrorItem(
+data class FTErrorItem(
     val reason: String,
     val message: String,
 )

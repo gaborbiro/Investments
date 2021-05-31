@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId "dev.gaborbiro.investments"
-        minSdkVersion 23
+        minSdkVersion 24
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
@@ -43,4 +43,5 @@ dependencies {
 
     implementation 'com.google.code.gson:gson:2.8.7'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.2'
+    implementation 'androidx.preference:preference-ktx:1.1.1'
 }
