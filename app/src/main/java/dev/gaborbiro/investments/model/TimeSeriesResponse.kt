@@ -6,7 +6,7 @@ class TimeSeriesResponse(val data: TimeSeriesData) {
 
         class TimeSeriesItems(val basic: TimeSeriesBasic, val timeSeries: TimeSeries) {
 
-            class TimeSeriesBasic(
+            data class TimeSeriesBasic(
                 val symbol: String,
                 val name: String,
                 val currency: String,
@@ -14,7 +14,7 @@ class TimeSeriesResponse(val data: TimeSeriesData) {
 
             class TimeSeries(val lastPrice: String, val timeSeriesData: List<TimeSeriesItem>) {
 
-                class TimeSeriesItem(
+                data class TimeSeriesItem(
                     val close: Float,
                     val lastClose: String, // 2021-05-26T14:30:00
                 )

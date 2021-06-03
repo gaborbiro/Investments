@@ -1,6 +1,6 @@
 package dev.gaborbiro.investments.model
 
-class CryptoPrice(
+data class CryptoPrice(
     val symbol: String,
     val price: Double,
 )

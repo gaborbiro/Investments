@@ -4,5 +4,5 @@ import com.google.gson.annotations.SerializedName
 
 class ForexResponse(val rates: Rates) {
 
-    class Rates(@SerializedName("GBP") val gbp: Float)
+    class Rates(@SerializedName("GBP") val gbp: Double)
 }

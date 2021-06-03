@@ -44,4 +44,9 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.7'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.2'
     implementation 'androidx.preference:preference-ktx:1.1.1'
+
+    // Android ROOM - Data Persistence
+    implementation "androidx.room:room-runtime:2.3.0"
+    implementation "androidx.room:room-ktx:2.3.0"
+    kapt "androidx.room:room-compiler:2.3.0" // Annotation processor for ROOM
 }
