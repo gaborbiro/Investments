@@ -5,4 +5,6 @@
     <dimen name="margin_large_16dp">16dp</dimen>
     <dimen name="margin_xlarge_24dp">24dp</dimen>
     <dimen name="margin_xxlarge_32dp">32dp</dimen>
+
+    <dimen name="appbar_initial_height">120dp</dimen>
 </resources>

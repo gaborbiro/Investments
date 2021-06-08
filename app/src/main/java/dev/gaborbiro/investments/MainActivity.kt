@@ -1,9 +1,11 @@
 package dev.gaborbiro.investments
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import com.google.android.material.appbar.AppBarLayout
 import dev.gaborbiro.investments.databinding.ActivityMainBinding
 import dev.gaborbiro.investments.databinding.ListItemAssetBinding
 import dev.gaborbiro.investments.model.*
@@ -26,7 +28,6 @@ class MainActivity : AppCompatActivity() {
         val assetMap = ftAssets.map { it.symbol to it.amount }.associate { it }
         val cryptosMap = cryptoAssets.map { it.symbol to it.amount }.associate { it }
         fetchAssets(assetMap, cryptosMap)
-
     }
 
     private fun fetchAssets(
@@ -111,13 +112,47 @@ class MainActivity : AppCompatActivity() {
         }
 
         CoroutineScope(Dispatchers.Main).launch {
-            binding.stocksSharesValue.text = "£${ftTotal.roundToInt().money()}"
-            binding.cryptoValue.text = "£${cryptoTotal.roundToInt().money()}"
-            binding.totalValue.text = "£${(ftTotal + cryptoTotal).roundToInt().money()}"
+            binding.stocksSharesValue.text = "£${ftTotal.roundToInt().bigMoney()}"
+            binding.cryptoValue.text = "£${cryptoTotal.roundToInt().bigMoney()}"
+            binding.totalValue.text = "£${(ftTotal + cryptoTotal).roundToInt().bigMoney()}"
 
             ftDetails.forEach(::addAssetToUI)
             cryptoDetails.forEach(::addAssetToUI)
             showProgress(false)
+
+            val stocksY = binding.stocksSharesLabel.y
+            val cryptoY = binding.cryptoLabel.y
+            val totalY = binding.totalLabel.y
+
+            val rowHeight = dpToPx(40)
+
+            binding.appbar.addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener { appBar, offset ->
+                val scrollY = -offset.toFloat()
+                println(scrollY)
+                val open = 1 - (scrollY / appBar.totalScrollRange)
+                binding.stocksSharesGraph.alpha = open
+                binding.cryptoGraph.alpha = open
+                binding.totalGraph.alpha = open
+
+                binding.stocksSharesLabel.y = scrollY + stocksY
+                binding.stocksSharesValue.y = scrollY + stocksY
+
+                if (scrollY > cryptoY - rowHeight) {
+                    binding.cryptoLabel.y = scrollY + rowHeight
+                    binding.cryptoValue.y = scrollY + rowHeight
+                } else {
+                    binding.cryptoLabel.y = cryptoY
+                    binding.cryptoValue.y = cryptoY
+                }
+
+                if (scrollY > totalY - 2 * rowHeight) {
+                    binding.totalLabel.y = scrollY + 2 * rowHeight
+                    binding.totalValue.y = scrollY + 2 * rowHeight
+                } else {
+                    binding.totalLabel.y = totalY
+                    binding.totalValue.y = totalY
+                }
+            })
         }
     }
 
@@ -194,8 +229,17 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
+fun Number.bigMoney(): String {
+    val format = DecimalFormat("#,###")
+    return format.format(this)
+}
+
 fun Number.money(): String {
     val format = DecimalFormat("#,###.##")
     (format as NumberFormat).minimumFractionDigits = 2
     return format.format(this)
+}
+
+fun Context.dpToPx(dp: Int): Int {
+    return (dp * resources.displayMetrics.density).toInt()
 }
