@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="text_size_body_medium">16sp</dimen>
+    <dimen name="text_size_body_small">14sp</dimen>
+    <dimen name="text_size_body_xsmall">12sp</dimen>
+    <dimen name="text_size_heading_large">40sp</dimen>
+    <dimen name="text_size_heading_medium">28sp</dimen>
+    <dimen name="text_size_heading_small">22sp</dimen>
+    <dimen name="text_size_heading_xsmall">18sp</dimen>
+
+    <dimen name="line_spacing_body_medium">6sp</dimen>
+    <dimen name="line_spacing_body_medium_bold">6sp</dimen>
+    <dimen name="line_spacing_body_small">4sp</dimen>
+    <dimen name="line_spacing_body_small_bold">4sp</dimen>
+    <dimen name="line_spacing_body_xsmall">2sp</dimen>
+    <dimen name="line_spacing_body_xsmall_bold">2sp</dimen>
+    <dimen name="line_spacing_heading_large">6sp</dimen>
+    <dimen name="line_spacing_heading_large_bold">6sp</dimen>
+    <dimen name="line_spacing_heading_medium">6sp</dimen>
+    <dimen name="line_spacing_heading_medium_bold">6sp</dimen>
+    <dimen name="line_spacing_heading_small">6sp</dimen>
+    <dimen name="line_spacing_heading_small_bold">6sp</dimen>
+    <dimen name="line_spacing_heading_xsmall">6sp</dimen>
+    <dimen name="line_spacing_heading_xsmall_bold">6sp</dimen>
+
+    <style name="UIKit.TextAppearance" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="UIKit.TextAppearance.Body">
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <style name="UIKit.TextAppearance.Body.Medium">
+        <item name="android:textSize">@dimen/text_size_body_medium</item>
+        <item name="android:lineSpacingExtra">@dimen/line_spacing_body_medium</item>
+    </style>
+
+    <style name="UIKit.TextAppearance.Body.Medium.Bold">
+        <item name="android:textStyle">bold</item>
+        <item name="android:lineSpacingExtra">@dimen/line_spacing_body_medium_bold</item>
+    </style>
+
+    <style name="UIKit.TextAppearance.Body.Medium.Italic">
+        <item name="android:textStyle">italic</item>
+    </style>
+
+    <style name="UIKit.TextAppearance.Body.Small">
+        <item name="android:textSize">@dimen/text_size_body_small</item>
+        <item name="android:lineSpacingExtra">@dimen/line_spacing_body_small</item>
+    </style>
+
+    <style name="UIKit.TextAppearance.Body.Small.Bold">
+        <item name="android:textStyle">bold</item>
+        <item name="android:lineSpacingExtra">@dimen/line_spacing_body_small_bold</item>
+    </style>
+
+    <style name="UIKit.TextAppearance.Body.Small.Italic">
+        <item name="android:textStyle">italic</item>
+    </style>
+
+    <style name="UIKit.TextAppearance.Body.XSmall">
+        <item name="android:textSize">@dimen/text_size_body_xsmall</item>
+        <item name="android:lineSpacingExtra">@dimen/line_spacing_body_xsmall</item>
+    </style>
+
+    <style name="UIKit.TextAppearance.Body.XSmall.Bold">
+        <item name="android:textStyle">bold</item>
+        <item name="android:lineSpacingExtra">@dimen/line_spacing_body_xsmall_bold</item>
+    </style>
+
+    <style name="UIKit.TextAppearance.Body.XSmall.Italic">
+        <item name="android:textStyle">italic</item>
+    </style>
+
+    <style name="UIKit.TextAppearance.Heading">
+        <item name="android:fontFamily">monospace</item>
+    </style>
+
+    <style name="UIKit.TextAppearance.Heading.Large">
+        <item name="android:textSize">@dimen/text_size_heading_large</item>
+        <item name="android:lineSpacingExtra">@dimen/line_spacing_heading_large</item>
+    </style>
+
+    <style name="UIKit.TextAppearance.Heading.Large.Bold">
+        <item name="android:textStyle">bold</item>
+        <item name="android:lineSpacingExtra">@dimen/line_spacing_heading_large_bold</item>
+    </style>
+
+    <style name="UIKit.TextAppearance.Heading.Large.Italic">
+        <item name="android:textStyle">italic</item>
+    </style>
+
+    <style name="UIKit.TextAppearance.Heading.Medium">
+        <item name="android:textSize">@dimen/text_size_heading_medium</item>
+        <item name="android:lineSpacingExtra">@dimen/line_spacing_heading_medium</item>
+    </style>
+
+    <style name="UIKit.TextAppearance.Heading.Medium.Bold">
+        <item name="android:textStyle">bold</item>
+        <item name="android:lineSpacingExtra">@dimen/line_spacing_heading_medium_bold</item>
+    </style>
+
+    <style name="UIKit.TextAppearance.Heading.Medium.Italic">
+        <item name="android:textStyle">italic</item>
+    </style>
+
+    <style name="UIKit.TextAppearance.Heading.Small">
+        <item name="android:textSize">@dimen/text_size_heading_small</item>
+        <item name="android:lineSpacingExtra">@dimen/line_spacing_heading_small</item>
+    </style>
+
+    <style name="UIKit.TextAppearance.Heading.Small.Bold">
+        <item name="android:textStyle">bold</item>
+        <item name="android:lineSpacingExtra">@dimen/line_spacing_heading_small_bold</item>
+    </style>
+
+    <style name="UIKit.TextAppearance.Heading.Small.Italic">
+        <item name="android:textStyle">italic</item>
+    </style>
+
+    <style name="UIKit.TextAppearance.Heading.XSmall">
+        <item name="android:textSize">@dimen/text_size_heading_xsmall</item>
+        <item name="android:lineSpacingExtra">@dimen/line_spacing_heading_xsmall</item>
+    </style>
+
+    <style name="UIKit.TextAppearance.Heading.XSmall.Bold">
+        <item name="android:textStyle">bold</item>
+        <item name="android:lineSpacingExtra">@dimen/line_spacing_heading_xsmall_bold</item>
+    </style>
+
+    <style name="UIKit.TextAppearance.Heading.XSmall.Italic">
+        <item name="android:textStyle">italic</item>
+    </style>
+</resources>

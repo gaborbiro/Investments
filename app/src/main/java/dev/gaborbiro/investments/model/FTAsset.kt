@@ -1,6 +1,6 @@
 package dev.gaborbiro.investments.model
 
-data class FTAssetUIModel(
+data class FTAsset(
     val symbol: String,
     val name: String,
     val value: Double,

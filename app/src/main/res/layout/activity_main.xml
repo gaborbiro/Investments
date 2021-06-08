@@ -1,31 +1,174 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".MainActivity">
+        tools:context=".MainActivity"
+        >
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="?attr/colorPrimaryVariant"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:title="Investment"
+            app:titleTextColor="@color/white"
+            >
+
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:id="@+id/progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_margin="@dimen/margin_default_8dp"
+                android:alpha="1"
+                android:indeterminate="true"
+                app:indicatorColor="@color/white"
+                />
+        </androidx.appcompat.widget.Toolbar>
+
+        <TextView
+            android:id="@+id/error_status"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/margin_default_8dp"
+            android:layout_marginTop="@dimen/margin_default_8dp"
+            android:textAppearance="@style/UIKit.TextAppearance.Body.Small.Italic"
+            android:textColor="@android:color/holo_red_dark"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/toolbar"
+            tools:text="Error"
+            tools:visibility="visible"
+            />
+
+        <TextView
+            android:id="@+id/stocks_shares_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_default_8dp"
+            android:layout_marginTop="@dimen/margin_default_8dp"
+            android:text="Stocks &amp; Shares:"
+            android:textAppearance="@style/UIKit.TextAppearance.Heading.XSmall.Bold"
+            app:layout_constraintEnd_toStartOf="@id/stocks_shares_value"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/error_status"
+            />
+
+        <TextView
+            android:id="@+id/stocks_shares_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_default_8dp"
+            android:layout_marginEnd="@dimen/margin_default_8dp"
+            android:layout_marginBottom="8dp"
+            android:textAppearance="@style/UIKit.TextAppearance.Heading.XSmall.Bold"
+            android:textIsSelectable="true"
+            app:layout_constraintBottom_toTopOf="@+id/crypto_value"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/error_status"
+            tools:text="£64296" />
+
+        <TextView
+            android:id="@+id/crypto_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_default_8dp"
+            android:layout_marginTop="@dimen/margin_default_8dp"
+            android:text="Crypto:"
+            android:textAppearance="@style/UIKit.TextAppearance.Heading.XSmall.Bold"
+            android:textIsSelectable="true"
+            app:layout_constraintEnd_toStartOf="@id/stocks_shares_value"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/stocks_shares_label"
+            />
+
+        <TextView
+            android:id="@+id/crypto_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_default_8dp"
+            android:layout_marginEnd="@dimen/margin_default_8dp"
+            android:textAppearance="@style/UIKit.TextAppearance.Heading.XSmall.Bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/stocks_shares_label"
+            tools:text="£7545"
+            />
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="1.5dp"
+            android:layout_marginTop="@dimen/margin_default_8dp"
+            android:background="@color/black_40"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/crypto_label"
+            />
+
+        <TextView
+            android:id="@+id/total_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_default_8dp"
+            android:layout_marginTop="@dimen/margin_default_8dp"
+            android:text="Total:"
+            android:textAppearance="@style/UIKit.TextAppearance.Heading.XSmall.Bold"
+            app:layout_constraintBaseline_toBaselineOf="@id/total_value"
+            app:layout_constraintEnd_toStartOf="@id/stocks_shares_value"
+            app:layout_constraintStart_toStartOf="parent"
+            />
+
+        <TextView
+            android:id="@+id/total_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_default_8dp"
+            android:layout_marginEnd="@dimen/margin_default_8dp"
+            android:textAppearance="@style/UIKit.TextAppearance.Heading.Small.Bold"
+            android:textIsSelectable="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/divider"
+            tools:text="£71841"
+            />
+
 
         <ScrollView
+            android:id="@+id/scroll_view"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:layout_marginTop="@dimen/margin_default_8dp"
             android:fadeScrollbars="false"
             android:orientation="vertical"
             android:scrollbars="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toBottomOf="@id/total_value"
+            >
 
-            <TextView
-                android:id="@+id/text"
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:id="@+id/container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="8dp"
-                android:textSize="16sp" />
+                android:orientation="vertical"
+                />
         </ScrollView>
 
+        <View
+            android:layout_width="0dp"
+            android:layout_height="4dp"
+            android:background="@drawable/shadow"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/scroll_view"
+            />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

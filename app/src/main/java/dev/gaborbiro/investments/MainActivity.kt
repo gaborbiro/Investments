@@ -5,10 +5,13 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import dev.gaborbiro.investments.databinding.ActivityMainBinding
+import dev.gaborbiro.investments.databinding.ListItemAssetBinding
 import dev.gaborbiro.investments.model.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.text.DecimalFormat
+import java.text.NumberFormat
 import kotlin.math.roundToInt
 
 @SuppressLint("SetTextI18n")
@@ -19,7 +22,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-        binding.text.text = "Fetching..."
+        showProgress(true)
         val assetMap = ftAssets.map { it.symbol to it.amount }.associate { it }
         val cryptosMap = cryptoAssets.map { it.symbol to it.amount }.associate { it }
         fetchAssets(assetMap, cryptosMap)
@@ -45,7 +48,10 @@ class MainActivity : AppCompatActivity() {
                     val cryptoPrices = fetch<ArrayList<CryptoPrice>>(BINANCE_PRICES_URL)
                     cryptoPrices.flatMap { Triple(timeSeries, forex, it) }
                 }
-            error?.let { handleError(it, ftAssets, cryptoAssets, noApiKeyRefresh) }
+            error?.let {
+                showProgress(false)
+                handleError(it, ftAssets, cryptoAssets, noApiKeyRefresh)
+            }
             success?.let { (timeSeries, forex, cryptoPrices) ->
                 handleAssetsSuccess(
                     response = timeSeries,
@@ -66,7 +72,7 @@ class MainActivity : AppCompatActivity() {
         cryptoPrices: Map<String, Double>,
     ) {
         val ftPrices = response.data.items.map {
-            it.basic.symbol to FTAssetUIModel(
+            it.basic.symbol to FTAsset(
                 symbol = it.basic.symbol,
                 name = it.basic.name,
                 value = it.timeSeries.lastPrice.toDouble(),
@@ -75,32 +81,54 @@ class MainActivity : AppCompatActivity() {
         }.associate { it }
         var ftTotal = 0.0
         var cryptoTotal = 0.0
-        val ftDetails = ftPrices.map {
-            val sharePrice = mapValueToPounds(it.value.value, it.value.currency, usd2gbp)
-            val shares = ftAssets[it.key]!!
-            val value = sharePrice * shares
+        val ftDetails = ftPrices.map { (ticker, asset) ->
+            val shares = ftAssets[ticker]!!
+            val (pounds, normalisedValue, currency) = when (asset.currency) {
+                "USD" -> Triple(asset.value * usd2gbp, asset.value, "$")
+                "GBP" -> Triple(asset.value, asset.value, "£")
+                "GBp" -> Triple(asset.value / 100.0, asset.value / 100.0, "£")
+                else -> Triple(0.0, 0.0, "")
+            }
+            val value = shares * pounds
             ftTotal += value
-            "${it.key} (${it.value.name}) => £${sharePrice.d2()} x $shares = £${value.d2()}"
-        }.joinToString("\n\n")
+            AssetUIModel(
+                label = asset.name,
+                value = "£${value.money()}",
+                details = "$currency${normalisedValue.money()} x $shares ($ticker)"
+            )
+        }
 
-        val cryptoDetails = cryptoAssets.map {
-            val cryptoPrice = cryptoPrices[it.key + "GBP"]
-                ?: (cryptoPrices[it.key + "BTC"]!! * cryptoPrices["BTCGBP"]!!)
-            val value = cryptoPrice * it.value
+        val cryptoDetails = cryptoAssets.map { (ticker, value) ->
+            val cryptoPrice = cryptoPrices[ticker + "GBP"]
+                ?: (cryptoPrices[ticker + "BTC"]!! * cryptoPrices["BTCGBP"]!!)
+            val value = cryptoPrice * value
             cryptoTotal += value
-            "${it.key} => £${cryptoPrice.d2()} x ${it.value} = £${value.d2()}"
-        }.joinToString("\n\n")
+            AssetUIModel(
+                label = ticker,
+                value = "£${value.money()}",
+                details = "£${cryptoPrice.money()} x $value"
+            )
+        }
 
         CoroutineScope(Dispatchers.Main).launch {
-            binding.text.text = "Stocks & Shares: £${ftTotal.roundToInt()}\n" +
-                    "Crypto:                   £${cryptoTotal.roundToInt()}\n" +
-                    "==================================\n" +
-                    "Total:                      £${ftTotal.roundToInt() + cryptoTotal.roundToInt()}" +
-                    "\n\n" +
-                    "$ftDetails\n\n" +
-                    "$cryptoDetails\n\n\n" +
-                    "(USD2GBP: ${usd2gbp})"
+            binding.stocksSharesValue.text = "£${ftTotal.roundToInt().money()}"
+            binding.cryptoValue.text = "£${cryptoTotal.roundToInt().money()}"
+            binding.totalValue.text = "£${(ftTotal + cryptoTotal).roundToInt().money()}"
+
+            ftDetails.forEach(::addAssetToUI)
+            cryptoDetails.forEach(::addAssetToUI)
+            showProgress(false)
         }
+    }
+
+    private fun addAssetToUI(asset: AssetUIModel) {
+        val binding = DataBindingUtil.inflate<ListItemAssetBinding>(
+            layoutInflater,
+            R.layout.list_item_asset,
+            binding.container,
+            /* attachToParent: */ true
+        )
+        binding.item = asset
     }
 
     private fun handleError(
@@ -114,8 +142,10 @@ class MainActivity : AppCompatActivity() {
                 if (noApiKeyRefresh) {
                     handleError(error)
                 } else {
+                    showProgress(true)
                     val apiKey = fetchNewAPIKey()
                     if (apiKey.isNullOrBlank()) {
+                        showProgress(false)
                         handleError(Error.AppError("Could not refresh Api key"))
                     } else {
                         AppPreferences.setApiKey(apiKey)
@@ -130,27 +160,42 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun mapValueToPounds(value: Double, currency: String, usd2gbp: Double): Double {
-        return when (currency) {
-            "USD" -> value * usd2gbp
-            "GBP" -> value
-            "GBp" -> value / 100.0
-            else -> 0.0
-        }
-    }
-
     private fun handleError(error: Error) {
         val message = when (error) {
             is Error.NetworkError -> "Couldn't talk to server. Check your internet connection"
             is Error.FTServerError -> error.uiMessage
             is Error.AppError -> error.uiMessage
         }
+        showError("Error: $message")
+    }
+
+    private fun showError(text: String) {
         CoroutineScope(Dispatchers.Main).launch {
-            binding.text.text = "Error: $message"
+            binding.errorStatus.text = text
+            binding.errorStatus.show()
         }
     }
 
+    private fun hideError() {
+        CoroutineScope(Dispatchers.Main).launch {
+            binding.errorStatus.text = null
+            binding.errorStatus.hide()
+        }
+    }
+
+    private fun showProgress(visible: Boolean) {
+        CoroutineScope(Dispatchers.Main).launch {
+            if (visible) {
+                binding.progress.show()
+            } else {
+                binding.progress.hide()
+            }
+        }
+    }
 }
 
-fun Double.d2() = (this * 100).roundToInt() / 100.0
-
+fun Number.money(): String {
+    val format = DecimalFormat("#,###.##")
+    (format as NumberFormat).minimumFractionDigits = 2
+    return format.format(this)
+}
