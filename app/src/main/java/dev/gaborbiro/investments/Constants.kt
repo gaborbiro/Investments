@@ -3,7 +3,7 @@ package dev.gaborbiro.investments
 import dev.gaborbiro.investments.model.Asset
 
 const val FT_TIME_SERIES_URL =
-    "https://markets.ft.com/research/webservices/securities/v1/time-series?symbols=%s&source=%s&dayCount=28&minuteInterval=10080"
+    "https://markets.ft.com/research/webservices/securities/v1/time-series?symbols=%s&source=%s&dayCount=1&minuteInterval=1440"
 
 const val BINANCE_PRICES_URL = "https://api.binance.com/api/v3/ticker/price"
 

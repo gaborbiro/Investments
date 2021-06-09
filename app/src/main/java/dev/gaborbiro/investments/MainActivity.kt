@@ -3,6 +3,7 @@ package dev.gaborbiro.investments
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import com.google.android.material.appbar.AppBarLayout
@@ -14,149 +15,71 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.DecimalFormat
 import java.text.NumberFormat
-import kotlin.math.roundToInt
 
 @SuppressLint("SetTextI18n")
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-        showProgress(true)
-        val assetMap = ftAssets.map { it.symbol to it.amount }.associate { it }
-        val cryptosMap = cryptoAssets.map { it.symbol to it.amount }.associate { it }
-        fetchAssets(assetMap, cryptosMap)
+        viewModel.init()
+        observe(viewModel.uiModel, ::render)
     }
 
-    private fun fetchAssets(
-        ftAssets: Map<String, Double>,
-        cryptoAssets: Map<String, Double>,
-        noApiKeyRefresh: Boolean = false,
-    ) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val ftUrl = FT_TIME_SERIES_URL.format(
-                ftAssets.map { it.key }.joinToString(","),
-                AppPreferences.getApiKey()
-            )
-            val (success, error) = fetch<TimeSeriesResponse>(ftUrl)
-                .flatMapSuspend { timeSeries ->
-                    val forex = fetch<ForexResponse>(USD2GBP_BASE_URL)
-                    forex.flatMap { Pair(timeSeries, it) }
-                }
-                .flatMapSuspend { (timeSeries, forex) ->
-                    val cryptoPrices = fetch<ArrayList<CryptoPrice>>(BINANCE_PRICES_URL)
-                    cryptoPrices.flatMap { Triple(timeSeries, forex, it) }
-                }
-            error?.let {
+    private fun render(model: MainUIModel?) {
+        when (model) {
+            is MainUIModel.Loading -> showProgress(true)
+            is MainUIModel.Error -> showError(model.message)
+            is MainUIModel.Data -> {
                 showProgress(false)
-                handleError(it, ftAssets, cryptoAssets, noApiKeyRefresh)
-            }
-            success?.let { (timeSeries, forex, cryptoPrices) ->
-                handleAssetsSuccess(
-                    response = timeSeries,
-                    ftAssets = ftAssets,
-                    cryptoAssets = cryptoAssets,
-                    usd2gbp = forex.rates.gbp,
-                    cryptoPrices = cryptoPrices.map { it.symbol to it.price }.associate { it },
-                )
+                binding.stocksSharesValue.text = "£${model.stocksTotal.bigMoney()}"
+                binding.cryptoValue.text = "£${model.cryptoTotal.bigMoney()}"
+                binding.totalValue.text = "£${model.total.bigMoney()}"
+                model.assets.forEach(::addAssetRowToUI)
+                setupToolbarAnimation()
             }
         }
     }
 
-    private fun handleAssetsSuccess(
-        response: TimeSeriesResponse,
-        ftAssets: Map<String, Double>,
-        cryptoAssets: Map<String, Double>,
-        usd2gbp: Double,
-        cryptoPrices: Map<String, Double>,
-    ) {
-        val ftPrices = response.data.items.map {
-            it.basic.symbol to FTAsset(
-                symbol = it.basic.symbol,
-                name = it.basic.name,
-                value = it.timeSeries.lastPrice.toDouble(),
-                currency = it.basic.currency,
-            )
-        }.associate { it }
-        var ftTotal = 0.0
-        var cryptoTotal = 0.0
-        val ftDetails = ftPrices.map { (ticker, asset) ->
-            val shares = ftAssets[ticker]!!
-            val (pounds, normalisedValue, currency) = when (asset.currency) {
-                "USD" -> Triple(asset.value * usd2gbp, asset.value, "$")
-                "GBP" -> Triple(asset.value, asset.value, "£")
-                "GBp" -> Triple(asset.value / 100.0, asset.value / 100.0, "£")
-                else -> Triple(0.0, 0.0, "")
+    private fun setupToolbarAnimation() {
+        val stocksY = binding.stocksSharesLabel.y
+        val cryptoY = binding.cryptoLabel.y
+        val totalY = binding.totalLabel.y
+
+        val rowHeight = dpToPx(40)
+
+        binding.appbar.addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener { appBar, offset ->
+            val scrollY = -offset.toFloat()
+            val open = 1 - (scrollY / appBar.totalScrollRange)
+            binding.stocksSharesGraph.alpha = open * open
+            binding.cryptoGraph.alpha = open * open
+            binding.totalGraph.alpha = open * open
+
+            binding.stocksSharesLabel.y = scrollY + stocksY
+            binding.stocksSharesValue.y = scrollY + stocksY
+
+            if (scrollY > cryptoY - rowHeight) {
+                binding.cryptoLabel.y = scrollY + rowHeight
+                binding.cryptoValue.y = scrollY + rowHeight
+            } else {
+                binding.cryptoLabel.y = cryptoY
+                binding.cryptoValue.y = cryptoY
             }
-            val value = shares * pounds
-            ftTotal += value
-            AssetUIModel(
-                label = asset.name,
-                value = "£${value.money()}",
-                details = "$currency${normalisedValue.money()} x $shares ($ticker)"
-            )
-        }
 
-        val cryptoDetails = cryptoAssets.map { (ticker, value) ->
-            val cryptoPrice = cryptoPrices[ticker + "GBP"]
-                ?: (cryptoPrices[ticker + "BTC"]!! * cryptoPrices["BTCGBP"]!!)
-            val value = cryptoPrice * value
-            cryptoTotal += value
-            AssetUIModel(
-                label = ticker,
-                value = "£${value.money()}",
-                details = "£${cryptoPrice.money()} x $value"
-            )
-        }
-
-        CoroutineScope(Dispatchers.Main).launch {
-            binding.stocksSharesValue.text = "£${ftTotal.roundToInt().bigMoney()}"
-            binding.cryptoValue.text = "£${cryptoTotal.roundToInt().bigMoney()}"
-            binding.totalValue.text = "£${(ftTotal + cryptoTotal).roundToInt().bigMoney()}"
-
-            ftDetails.forEach(::addAssetToUI)
-            cryptoDetails.forEach(::addAssetToUI)
-            showProgress(false)
-
-            val stocksY = binding.stocksSharesLabel.y
-            val cryptoY = binding.cryptoLabel.y
-            val totalY = binding.totalLabel.y
-
-            val rowHeight = dpToPx(40)
-
-            binding.appbar.addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener { appBar, offset ->
-                val scrollY = -offset.toFloat()
-                println(scrollY)
-                val open = 1 - (scrollY / appBar.totalScrollRange)
-                binding.stocksSharesGraph.alpha = open
-                binding.cryptoGraph.alpha = open
-                binding.totalGraph.alpha = open
-
-                binding.stocksSharesLabel.y = scrollY + stocksY
-                binding.stocksSharesValue.y = scrollY + stocksY
-
-                if (scrollY > cryptoY - rowHeight) {
-                    binding.cryptoLabel.y = scrollY + rowHeight
-                    binding.cryptoValue.y = scrollY + rowHeight
-                } else {
-                    binding.cryptoLabel.y = cryptoY
-                    binding.cryptoValue.y = cryptoY
-                }
-
-                if (scrollY > totalY - 2 * rowHeight) {
-                    binding.totalLabel.y = scrollY + 2 * rowHeight
-                    binding.totalValue.y = scrollY + 2 * rowHeight
-                } else {
-                    binding.totalLabel.y = totalY
-                    binding.totalValue.y = totalY
-                }
-            })
-        }
+            if (scrollY > totalY - 2 * rowHeight) {
+                binding.totalLabel.y = scrollY + 2 * rowHeight
+                binding.totalValue.y = scrollY + 2 * rowHeight
+            } else {
+                binding.totalLabel.y = totalY
+                binding.totalValue.y = totalY
+            }
+        })
     }
 
-    private fun addAssetToUI(asset: AssetUIModel) {
+    private fun addAssetRowToUI(asset: AssetUIModel) {
         val binding = DataBindingUtil.inflate<ListItemAssetBinding>(
             layoutInflater,
             R.layout.list_item_asset,
@@ -164,44 +87,6 @@ class MainActivity : AppCompatActivity() {
             /* attachToParent: */ true
         )
         binding.item = asset
-    }
-
-    private fun handleError(
-        error: Error,
-        ftAssets: Map<String, Double>,
-        cryptoAssets: Map<String, Double>,
-        noApiKeyRefresh: Boolean = false,
-    ) {
-        if (error is Error.FTServerError) {
-            if (error.errors.any { it.reason == "MissingAPIKey" }) {
-                if (noApiKeyRefresh) {
-                    handleError(error)
-                } else {
-                    showProgress(true)
-                    val apiKey = fetchNewAPIKey()
-                    if (apiKey.isNullOrBlank()) {
-                        showProgress(false)
-                        handleError(Error.AppError("Could not refresh Api key"))
-                    } else {
-                        AppPreferences.setApiKey(apiKey)
-                        fetchAssets(ftAssets, cryptoAssets, noApiKeyRefresh = true)
-                    }
-                }
-            } else {
-                handleError(Error.AppError("Could not refresh Api key"))
-            }
-        } else {
-            handleError(error)
-        }
-    }
-
-    private fun handleError(error: Error) {
-        val message = when (error) {
-            is Error.NetworkError -> "Couldn't talk to server. Check your internet connection"
-            is Error.FTServerError -> error.uiMessage
-            is Error.AppError -> error.uiMessage
-        }
-        showError("Error: $message")
     }
 
     private fun showError(text: String) {
