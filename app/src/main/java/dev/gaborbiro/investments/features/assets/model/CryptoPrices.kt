@@ -1,4 +1,4 @@
-package dev.gaborbiro.investments.model
+package dev.gaborbiro.investments.features.assets.model
 
 data class CryptoPrice(
     val symbol: String,

@@ -1,5 +1,7 @@
 package dev.gaborbiro.investments.model
 
+import dev.gaborbiro.investments.features.assets.model.FTErrorItem
+
 class Response<T> {
     var result: T? = null
         private set

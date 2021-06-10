@@ -5,6 +5,7 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import dev.gaborbiro.investments.data.model.RecordDBModel
 
 @Database(entities = [RecordDBModel::class], version = 1, exportSchema = false)
 @TypeConverters(Converters::class)
@@ -15,12 +16,13 @@ abstract class DB : RoomDatabase() {
     companion object {
 
         @Volatile
-        private var INSTANCE: DB? = null
+        private lateinit var INSTANCE: DB
 
-        fun getInstance(context: Context): DB =
-            INSTANCE ?: synchronized(this) {
-                INSTANCE ?: buildDatabase(context).also { INSTANCE = it }
-            }
+        fun init(appContext: Context) {
+            INSTANCE = buildDatabase(appContext)
+        }
+
+        fun getInstance(): DB = INSTANCE
 
         private fun buildDatabase(context: Context): DB {
             return Room.databaseBuilder(

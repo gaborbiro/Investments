@@ -1,8 +1,8 @@
-package dev.gaborbiro.investments.model
+package dev.gaborbiro.investments.features.assets.model
 
 import com.google.gson.annotations.SerializedName
 
-class ForexResponse(val rates: Rates) {
+class Forex(val rates: Rates) {
 
     class Rates(@SerializedName("GBP") val gbp: Double)
 }

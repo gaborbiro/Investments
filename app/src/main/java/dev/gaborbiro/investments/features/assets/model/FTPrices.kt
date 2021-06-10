@@ -1,6 +1,6 @@
-package dev.gaborbiro.investments.model
+package dev.gaborbiro.investments.features.assets.model
 
-class TimeSeriesResponse(val data: TimeSeriesData) {
+class FTPrices(val data: TimeSeriesData) {
 
     class TimeSeriesData(val items: List<TimeSeriesItems>) {
 

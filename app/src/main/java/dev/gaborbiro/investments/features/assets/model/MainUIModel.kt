@@ -1,4 +1,4 @@
-package dev.gaborbiro.investments.model
+package dev.gaborbiro.investments.features.assets.model
 
 sealed class MainUIModel {
 
@@ -6,6 +6,7 @@ sealed class MainUIModel {
 
     class Data(
         val stocksTotal: Int,
+        val stocksGain: Int,
         val cryptoTotal: Int,
         val total: Int,
         val assets: List<AssetUIModel>

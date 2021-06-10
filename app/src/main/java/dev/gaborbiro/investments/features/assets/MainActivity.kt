@@ -1,20 +1,28 @@
-package dev.gaborbiro.investments
+package dev.gaborbiro.investments.features.assets
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import com.google.android.material.appbar.AppBarLayout
+import dev.gaborbiro.investments.R
 import dev.gaborbiro.investments.databinding.ActivityMainBinding
 import dev.gaborbiro.investments.databinding.ListItemAssetBinding
-import dev.gaborbiro.investments.model.*
+import dev.gaborbiro.investments.features.assets.model.AssetUIModel
+import dev.gaborbiro.investments.features.assets.model.MainUIModel
+import dev.gaborbiro.investments.hide
+import dev.gaborbiro.investments.observe
+import dev.gaborbiro.investments.show
+import getHighlightedText
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.DecimalFormat
 import java.text.NumberFormat
+import kotlin.math.absoluteValue
 
 @SuppressLint("SetTextI18n")
 class MainActivity : AppCompatActivity() {
@@ -35,7 +43,21 @@ class MainActivity : AppCompatActivity() {
             is MainUIModel.Error -> showError(model.message)
             is MainUIModel.Data -> {
                 showProgress(false)
-                binding.stocksSharesValue.text = "£${model.stocksTotal.bigMoney()}"
+                val stocksGain = if (model.stocksGain < 0) {
+                    "-£${model.stocksGain.absoluteValue.bigMoney()}"
+                } else {
+                    "+£${model.stocksGain.absoluteValue.bigMoney()}"
+                }
+                val gainColor =
+                    (if (model.stocksGain > 0) R.color.red_light else R.color.green_light).let {
+                        ContextCompat.getColor(this, it)
+                    }
+                val stocksValue = "£${model.stocksTotal.bigMoney()} ($stocksGain)"
+                binding.stocksSharesValue.text = stocksValue.getHighlightedText(
+                    stocksGain,
+                    gainColor,
+                    highlightForeground = true
+                )
                 binding.cryptoValue.text = "£${model.cryptoTotal.bigMoney()}"
                 binding.totalValue.text = "£${model.total.bigMoney()}"
                 model.assets.forEach(::addAssetRowToUI)

@@ -4,8 +4,9 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
+import dev.gaborbiro.investments.features.assets.DOC_BASE_URL
 import dev.gaborbiro.investments.model.Error
-import dev.gaborbiro.investments.model.FTErrorResponse
+import dev.gaborbiro.investments.features.assets.model.FTErrorResponse
 import dev.gaborbiro.investments.model.Response
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

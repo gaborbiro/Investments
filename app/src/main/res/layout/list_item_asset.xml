@@ -5,10 +5,10 @@
 
         <variable
             name="item"
-            type="dev.gaborbiro.investments.model.AssetUIModel" />
+            type="dev.gaborbiro.investments.features.assets.model.AssetUIModel" />
 
         <import type="android.text.TextUtils" />
-
+        <import type="androidx.core.content.ContextCompat"/>
         <import type="android.view.View" />
     </data>
 
@@ -51,6 +51,19 @@
             />
 
         <TextView
+            android:id="@+id/gain"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/margin_default_8dp"
+            android:text="@{item.gain}"
+            android:textColor="@{ContextCompat.getColor(context, item.gainColor)}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/value"
+            tools:text="+$9,454.83"
+            tools:textColor="@color/green"
+            />
+
+        <TextView
             android:id="@+id/details"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -59,7 +72,7 @@
             android:textAppearance="@style/UIKit.TextAppearance.Body.Medium"
             android:textIsSelectable="true"
             android:visibility="@{ TextUtils.isEmpty(item.details) ? View.GONE : View.VISIBLE }"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/gain"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/title"
             tools:text="£1675.86 x 7.0, $2370.59 -> $16594.13"
