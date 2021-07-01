@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.gson.Gson
 import dev.gaborbiro.investments.AppPreferences
 import dev.gaborbiro.investments.data.DB
 import dev.gaborbiro.investments.data.model.RecordDBModel
@@ -14,8 +13,6 @@ import dev.gaborbiro.investments.model.Error
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.time.ZoneOffset
 
 class MainViewModel : ViewModel() {
 
@@ -37,22 +34,35 @@ class MainViewModel : ViewModel() {
             handleError(it, noApiKeyRefresh)
         }
         data?.let { (ftPrices, forex, binancePrices) ->
-            val (uiModel, record) = Mapper.generateModels(
+            val (stocksTotal,
+                stocksGain,
+                cryptoTotal,
+                total,
+                assets,
+                recordData) = Mapper.generateModels(
                 stockTickers = stockTickers,
                 ftPrices = ftPrices,
                 cryptoTickers = cryptoTickers,
                 binancePrices = binancePrices.map { it.symbol to it.price }.associate { it },
                 usd2gbp = forex.rates.gbp,
             )
-            val dbModel = RecordDBModel(
-                null,
-                day = LocalDate.now(ZoneOffset.UTC),
-                zoneId = ZoneOffset.UTC,
-                Gson().toJson(record.data)
-            )
-            DB.getInstance().recordsDAO().insert(listOf(dbModel))
+            val dbModel = Mapper.map(recordData)
+            val dao = DB.getInstance().recordsDAO()
+
+            dao.insert(listOf(dbModel))
+            val dbData: List<RecordDBModel> = dao.get()
+            val (stocksChart, cryptoChart, totalChart) = Mapper.map(dbData)
             CoroutineScope(Dispatchers.Main).launch {
-                _uiModel.value = uiModel
+                _uiModel.value = MainUIModel.Data(
+                    stocksTotal,
+                    stocksGain,
+                    cryptoTotal,
+                    total,
+                    assets,
+                    stocksChart,
+                    cryptoChart,
+                    totalChart,
+                )
             }
         }
     }

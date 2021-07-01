@@ -9,8 +9,13 @@ sealed class MainUIModel {
         val stocksGain: Int,
         val cryptoTotal: Int,
         val total: Int,
-        val assets: List<AssetUIModel>
+        val assets: List<AssetUIModel>,
+        val stocksChart: ChartUIModel,
+        val cryptoChart: ChartUIModel,
+        val totalChart: ChartUIModel,
     ) : MainUIModel()
 
     class Error(val message: String) : MainUIModel()
 }
+
+class ChartUIModel(val data: List<Pair<Float, Double>>)

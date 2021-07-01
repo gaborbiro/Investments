@@ -36,12 +36,12 @@
                     app:layout_collapseMode="pin"
                     >
 
-                    <View
+                    <com.github.mikephil.charting.charts.LineChart
                         android:id="@+id/stocks_shares_graph"
                         android:layout_width="0dp"
                         android:layout_height="164dp"
-                        android:layout_margin="@dimen/margin_default_8dp"
-                        android:background="@color/purple_200"
+                        android:layout_marginStart="@dimen/margin_large_16dp"
+                        android:layout_marginEnd="@dimen/margin_default_8dp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/stocks_shares_label"
@@ -76,12 +76,12 @@
                         app:layout_constraintTop_toTopOf="parent"
                         tools:text="£64296" />
 
-                    <View
+                    <com.github.mikephil.charting.charts.LineChart
                         android:id="@+id/crypto_graph"
                         android:layout_width="0dp"
                         android:layout_height="164dp"
-                        android:layout_margin="@dimen/margin_default_8dp"
-                        android:background="@color/purple_200"
+                        android:layout_marginStart="@dimen/margin_large_16dp"
+                        android:layout_marginEnd="@dimen/margin_default_8dp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/crypto_label"
@@ -92,7 +92,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/margin_default_8dp"
-                        android:layout_marginTop="@dimen/margin_default_8dp"
+                        android:layout_marginTop="@dimen/margin_large_16dp"
                         android:layout_marginEnd="@dimen/margin_default_8dp"
                         android:text="Crypto:"
                         android:textAppearance="@style/UIKit.TextAppearance.Body.Medium.Bold"
@@ -107,7 +107,7 @@
                         android:id="@+id/crypto_value"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/margin_default_8dp"
+                        android:layout_marginTop="@dimen/margin_large_16dp"
                         android:layout_marginEnd="@dimen/margin_default_8dp"
                         android:textAppearance="@style/UIKit.TextAppearance.Body.Medium.Bold"
                         android:textColor="@color/white"
@@ -116,12 +116,12 @@
                         tools:text="£7545"
                         />
 
-                    <View
+                    <com.github.mikephil.charting.charts.LineChart
                         android:id="@+id/total_graph"
                         android:layout_width="0dp"
                         android:layout_height="164dp"
-                        android:layout_margin="@dimen/margin_default_8dp"
-                        android:background="@color/purple_200"
+                        android:layout_marginStart="@dimen/margin_large_16dp"
+                        android:layout_marginEnd="@dimen/margin_default_8dp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/total_label"
@@ -145,7 +145,7 @@
                         android:id="@+id/total_value"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/margin_default_8dp"
+                        android:layout_marginTop="@dimen/margin_large_16dp"
                         android:layout_marginEnd="@dimen/margin_default_8dp"
                         android:textAppearance="@style/UIKit.TextAppearance.Heading.XSmall.Bold"
                         android:textColor="@color/white"

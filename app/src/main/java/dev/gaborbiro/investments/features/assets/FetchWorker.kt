@@ -3,15 +3,11 @@ package dev.gaborbiro.investments.features.assets
 import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.google.gson.Gson
 import dev.gaborbiro.investments.AppPreferences
 import dev.gaborbiro.investments.NotificationManager
 import dev.gaborbiro.investments.data.DB
-import dev.gaborbiro.investments.data.model.RecordDBModel
 import dev.gaborbiro.investments.fetchNewAPIKey
 import dev.gaborbiro.investments.model.Error
-import java.time.LocalDate
-import java.time.ZoneOffset
 
 class FetchWorker(appContext: Context, workerParams: WorkerParameters) :
     CoroutineWorker(appContext, workerParams) {
@@ -27,19 +23,14 @@ class FetchWorker(appContext: Context, workerParams: WorkerParameters) :
         val stockTickers = stockTickers.map { it.symbol to it }.associate { it }
         val cryptoTickers = cryptoTickers.map { it.symbol to it.amount }.associate { it }
         data?.let { (ftPrices, forex, binancePrices) ->
-            val (_, record) = Mapper.generateModels(
+            val (_, _, _, _, _, recordData) = Mapper.generateModels(
                 stockTickers = stockTickers,
                 ftPrices = ftPrices,
                 cryptoTickers = cryptoTickers,
                 binancePrices = binancePrices.map { it.symbol to it.price }.associate { it },
                 usd2gbp = forex.rates.gbp,
             )
-            val dbModel = RecordDBModel(
-                null,
-                day = LocalDate.now(ZoneOffset.UTC),
-                zoneId = ZoneOffset.UTC,
-                Gson().toJson(record.data)
-            )
+            val dbModel = Mapper.map(recordData)
             DB.getInstance().recordsDAO().insert(listOf(dbModel))
             NotificationManager.showSyncSuccessNotification()
         }

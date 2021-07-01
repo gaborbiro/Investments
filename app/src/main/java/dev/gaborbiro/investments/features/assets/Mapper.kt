@@ -1,11 +1,20 @@
 package dev.gaborbiro.investments.features.assets
 
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import dev.gaborbiro.investments.R
+import dev.gaborbiro.investments.data.model.RecordDBModel
 import dev.gaborbiro.investments.features.assets.model.*
+import java.lang.reflect.Type
+import java.time.LocalDate
+import java.time.ZoneOffset
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
 object Mapper {
+
+    private val gson: Gson by lazy { Gson() }
+    private val dbJsonType: Type by lazy { object : TypeToken<HashMap<String, Double>>() {}.type }
 
     fun generateModels(
         stockTickers: Map<String, Ticker.FT>,
@@ -19,7 +28,8 @@ object Mapper {
          */
         binancePrices: Map<String, Double>,
         usd2gbp: Double,
-    ): Pair<MainUIModel, Record> {
+
+        ): CombinedModel.Builder {
         data class FTAsset(
             val symbol: String,
             val name: String,
@@ -43,8 +53,10 @@ object Mapper {
         var ftCost = 0.0
         var cryptoTotal = 0.0
         val ftDetails = ftPrices.map { (ticker, asset) ->
-            val (amount, bookCost) = stockTickers[ticker]!!.let { it.amount to it.bookCost }
-            val (pounds, normalisedValue, currency, normalisedCost) = when (asset.currency) {
+            val stockTicker: Ticker.FT = stockTickers[ticker]!!
+            val (amount, bookCost) = stockTicker.let { it.amount to it.bookCost }
+            val stockCurrency = stockTicker.currencyOverride ?: asset.currency
+            val (pounds, normalisedValue, currency, normalisedCost) = when (stockCurrency) {
                 "USD" -> Quad(asset.value * usd2gbp, asset.value, "$", bookCost * usd2gbp)
                 "GBP" -> Quad(asset.value, asset.value, "£", bookCost)
                 "GBp" -> Quad(asset.value / 100.0, asset.value / 100.0, "£", bookCost)
@@ -64,9 +76,11 @@ object Mapper {
             )
         }
 
+        fun Map<String, Double>.getPoundValue(ticker: String) = binancePrices[ticker + "GBP"]
+            ?: (binancePrices[ticker + "BTC"]!! * binancePrices["BTCGBP"]!!)
+
         val cryptoDetails = cryptoTickers.map { (ticker, amount) ->
-            val cryptoPrice = binancePrices[ticker + "GBP"]
-                ?: (binancePrices[ticker + "BTC"]!! * binancePrices["BTCGBP"]!!)
+            val cryptoPrice = binancePrices.getPoundValue(ticker)
             val value = cryptoPrice * amount
             cryptoTotal += value
             AssetUIModel(
@@ -82,20 +96,99 @@ object Mapper {
         val cryptoTotal2 = cryptoTotal.roundToInt()
         val total = (ftTotal + cryptoTotal).roundToInt()
 
-        val record = Record(
-            data = RecordData(
-                stocksTotal = stocksTotal,
-                cryptoTotal = cryptoTotal2,
-                total = total,
-            )
-        )
-        val mainUIModel = MainUIModel.Data(
+        val record = RecordData().apply {
+            put(KEY_STOCKS_TOTAL, stocksTotal.toDouble())
+            put(KEY_CRYPTO_TOTAL, cryptoTotal2.toDouble())
+            put(KEY_TOTAL, total.toDouble())
+            putAll(cryptoTickers.mapValues { (ticker, _) -> binancePrices.getPoundValue(ticker) })
+            putAll(ftPrices.mapValues { (_, value) -> value.value })
+        }
+        return CombinedModel.Builder(
             stocksTotal = stocksTotal,
             stocksGain = stocksGain,
             cryptoTotal = cryptoTotal2,
             total = total,
-            assets = ftDetails + cryptoDetails
+            assets = ftDetails + cryptoDetails,
+            recordData = record
         )
-        return mainUIModel to record
+    }
+
+    fun map(dbData: List<RecordDBModel>): Triple<ChartUIModel, ChartUIModel, ChartUIModel> {
+        val stocksChart = mutableListOf<Pair<Float, Double>>()
+        val cryptoChart = mutableListOf<Pair<Float, Double>>()
+        val totalChart = mutableListOf<Pair<Float, Double>>()
+
+        dbData.forEach {
+            val recordData = map(it)
+            stocksChart.add(it.day.toEpochDay().toFloat() to recordData[KEY_STOCKS_TOTAL]!!)
+            cryptoChart.add(it.day.toEpochDay().toFloat() to recordData[KEY_CRYPTO_TOTAL]!!)
+            totalChart.add(it.day.toEpochDay().toFloat() to recordData[KEY_TOTAL]!!)
+        }
+
+        return Triple(
+            ChartUIModel(stocksChart),
+            ChartUIModel(cryptoChart),
+            ChartUIModel(totalChart)
+        )
+    }
+
+    fun map(dbModel: RecordDBModel): HashMap<String, Double> {
+        return gson.fromJson<HashMap<String, Double>>(dbModel.record, dbJsonType)
+    }
+
+    fun map(record: RecordData): RecordDBModel {
+        return RecordDBModel(
+            day = LocalDate.now(ZoneOffset.UTC),
+            zoneId = ZoneOffset.UTC,
+            record = Gson().toJson(record)
+        )
+    }
+}
+
+class CombinedModel(
+    val stocksTotal: Int,
+    val stocksGain: Int,
+    val cryptoTotal: Int,
+    val total: Int,
+    val assets: List<AssetUIModel>,
+    val recordData: RecordData,
+) {
+
+    lateinit var stocksChartUIModel: ChartUIModel
+        private set
+
+    lateinit var cryptoChartUIModel: ChartUIModel
+        private set
+
+    lateinit var totalChartUIModel: ChartUIModel
+        private set
+
+    data class Builder(
+        val stocksTotal: Int,
+        val stocksGain: Int,
+        val cryptoTotal: Int,
+        val total: Int,
+        val assets: List<AssetUIModel>,
+        val recordData: RecordData,
+    ) {
+
+        fun withCharts(
+            stocksChartUIModel: ChartUIModel,
+            cryptoChartUIModel: ChartUIModel,
+            totalChartUIModel: ChartUIModel
+        ): CombinedModel {
+            return CombinedModel(
+                stocksTotal,
+                stocksGain,
+                cryptoTotal,
+                total,
+                assets,
+                recordData
+            ).apply {
+                this.stocksChartUIModel = stocksChartUIModel
+                this.cryptoChartUIModel = cryptoChartUIModel
+                this.totalChartUIModel = totalChartUIModel
+            }
+        }
     }
 }

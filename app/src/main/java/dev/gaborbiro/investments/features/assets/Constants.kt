@@ -11,6 +11,7 @@ const val USD2GBP_BASE_URL =
 const val DOC_BASE_URL = "https://markets.ft.com/research/webservices/securities/v1/docs"
 
 val stockTickers = listOf(
+    Ticker.FT("GB00B4R0SD95:GBP", 445.48, 507.9, "GBp"),
     Ticker.FT("GOOGL:NSQ", 7.00, 7400.65),
     Ticker.FT("GB00B4W52V57:GBX", 615.385, 3245.0),
     Ticker.FT("GB0006061963:GBX", 37.835, 772.0),
@@ -18,12 +19,17 @@ val stockTickers = listOf(
     Ticker.FT("GB00B7C44X99:GBX", 1105.97, 2400.0),
     Ticker.FT("COF:NYQ", 39.0, 2008.9),
     Ticker.FT("FB:NSQ", 29.0, 4806.0),
+    Ticker.FT("GB00B82ZSC67:GBX", 48.85, 207.99),
     Ticker.FT("FSLR:NSQ", 11.0, 907.28),
     Ticker.FT("GSK:LSE", 30.0, 498.27),
     Ticker.FT("SWDA:LSE:GBX", 43.0, 2843.11),
     Ticker.FT("IWFV:LSE:GBX", 139.0, 3253.21),
+    Ticker.FT("LTG:LSE", 250.0, 468.75),
+    Ticker.FT("MSFT:NSQ", 2.0, 396.52),
     Ticker.FT("NG.:LSE", 45.0, 397.84),
     Ticker.FT("PBEE:LSE", 54.0, 99.36),
+    Ticker.FT("GB00BDZVKD12:GBP", 130.18, 207.99, "GBp"),
+    Ticker.FT("RST:LSE", 100.0, 394.94),
     Ticker.FT("ULVR:LSE", 9.0, 384.36),
     Ticker.FT("VWRL:LSE:GBP", 14.0, 989.72),
     Ticker.FT("GB00BD3RZ368:GBP", 16.6694, 2000.0),

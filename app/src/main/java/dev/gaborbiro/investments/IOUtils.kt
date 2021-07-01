@@ -48,16 +48,18 @@ suspend inline fun <reified T> fetch(url: String): Response<T> {
 }
 
 @RequiresApi(Build.VERSION_CODES.N)
-fun fetchNewAPIKey(): String? {
-    val connection = URL(DOC_BASE_URL).openConnection()
-    connection.connect()
-    val code = (connection as HttpsURLConnection).responseCode
+suspend fun fetchNewAPIKey(): String? {
+    return withContext(Dispatchers.IO) {
+        val connection = URL(DOC_BASE_URL).openConnection()
+        connection.connect()
+        val code = (connection as HttpsURLConnection).responseCode
 
-    return if (code == 200) {
-        val lines = InputStreamReader(connection.inputStream).readLines()
-        val lineWithApiKey = lines.firstOrNull { it.contains("query=pson&amp;source=") }
-        lineWithApiKey?.let {
-            it.split("source=")[1].split("\"")[0]
-        }
-    } else null
+        if (code == 200) {
+            val lines = InputStreamReader(connection.inputStream).readLines()
+            val lineWithApiKey = lines.firstOrNull { it.contains("query=pson&amp;source=") }
+            lineWithApiKey?.let {
+                it.split("source=")[1].split("\"")[0]
+            }
+        } else null
+    }
 }

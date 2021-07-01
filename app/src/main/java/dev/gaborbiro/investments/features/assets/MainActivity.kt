@@ -7,11 +7,19 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import com.github.mikephil.charting.animation.Easing
+import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.LineData
+import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.formatter.ValueFormatter
 import com.google.android.material.appbar.AppBarLayout
 import dev.gaborbiro.investments.R
 import dev.gaborbiro.investments.databinding.ActivityMainBinding
 import dev.gaborbiro.investments.databinding.ListItemAssetBinding
 import dev.gaborbiro.investments.features.assets.model.AssetUIModel
+import dev.gaborbiro.investments.features.assets.model.ChartUIModel
 import dev.gaborbiro.investments.features.assets.model.MainUIModel
 import dev.gaborbiro.investments.hide
 import dev.gaborbiro.investments.observe
@@ -62,7 +70,69 @@ class MainActivity : AppCompatActivity() {
                 binding.totalValue.text = "£${model.total.bigMoney()}"
                 model.assets.forEach(::addAssetRowToUI)
                 setupToolbarAnimation()
+
+                setupChart(binding.stocksSharesGraph, model.stocksChart)
+                setupChart(binding.cryptoGraph, model.cryptoChart)
+                setupChart(binding.totalGraph, model.totalChart)
             }
+        }
+    }
+
+    private fun setupChart(lineChart: LineChart, chartData: ChartUIModel) {
+        val dataSet = LineDataSet(
+            chartData.data.map { (day, value) -> Entry(day, value.toFloat()) },
+            ""
+        )
+        with(dataSet) {
+            setDrawValues(true)
+            color = ContextCompat.getColor(this@MainActivity, R.color.purple_200)
+            lineWidth = 3f
+            setDrawCircles(false)
+            valueTextColor = ContextCompat.getColor(this@MainActivity, R.color.white)
+            valueTextSize = 12f
+            valueFormatter = object: ValueFormatter() {
+                override fun getFormattedValue(value: Float): String {
+                    return "£${value.bigMoney()}"
+                }
+            }
+        }
+        with(lineChart) {
+            data = LineData(dataSet)
+            setNoDataText("Loading...")
+            setMaxVisibleValueCount(10)
+            with(xAxis) {
+                textColor = ContextCompat.getColor(this@MainActivity, R.color.white)
+                setDrawGridLines(false)
+                setDrawAxisLine(false)
+                labelCount = 5
+                textSize = 14f
+                position = XAxis.XAxisPosition.BOTTOM
+                valueFormatter = DayAxisValueFormatter()
+                legend.isEnabled = false
+            }
+            with(axisLeft) {
+                textColor = ContextCompat.getColor(this@MainActivity, R.color.white)
+                setDrawGridLines(false)
+                setDrawAxisLine(false)
+                labelCount = 3
+                textSize = 14f
+                valueFormatter = object: ValueFormatter() {
+                    override fun getFormattedValue(value: Float): String {
+                        val thousands = value / 1000f
+                        return "£${thousands.bigMoney()}k"
+                    }
+                }
+            }
+            with(axisRight) {
+                isEnabled = false
+            }
+            isHighlightPerTapEnabled = false
+            isHighlightPerDragEnabled = false
+            description.isEnabled = false
+            extraBottomOffset = 10f
+            animateY(1000, Easing.EaseInOutCubic)
+            setTouchEnabled(true)
+            invalidate()
         }
     }
 

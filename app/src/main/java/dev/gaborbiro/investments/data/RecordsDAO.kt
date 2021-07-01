@@ -1,9 +1,6 @@
 package dev.gaborbiro.investments.data
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 import dev.gaborbiro.investments.data.model.RecordDBModel
 
 @Dao
@@ -14,4 +11,10 @@ interface RecordsDAO {
 
     @Query("SELECT * FROM records")
     suspend fun get(): List<RecordDBModel>
+
+    @Query("SELECT * FROM records WHERE id=:id")
+    suspend fun get(id: String): RecordDBModel?
+
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun update(record: RecordDBModel)
 }
