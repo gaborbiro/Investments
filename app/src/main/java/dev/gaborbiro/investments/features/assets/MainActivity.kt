@@ -90,7 +90,7 @@ class MainActivity : AppCompatActivity() {
             setDrawCircles(false)
             valueTextColor = ContextCompat.getColor(this@MainActivity, R.color.white)
             valueTextSize = 12f
-            valueFormatter = object: ValueFormatter() {
+            valueFormatter = object : ValueFormatter() {
                 override fun getFormattedValue(value: Float): String {
                     return "£${value.bigMoney()}"
                 }
@@ -116,7 +116,7 @@ class MainActivity : AppCompatActivity() {
                 setDrawAxisLine(false)
                 labelCount = 3
                 textSize = 14f
-                valueFormatter = object: ValueFormatter() {
+                valueFormatter = object : ValueFormatter() {
                     override fun getFormattedValue(value: Float): String {
                         val thousands = value / 1000f
                         return "£${thousands.bigMoney()}k"

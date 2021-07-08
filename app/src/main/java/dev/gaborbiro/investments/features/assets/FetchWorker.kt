@@ -3,6 +3,7 @@ package dev.gaborbiro.investments.features.assets
 import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import dev.gaborbiro.investments.App
 import dev.gaborbiro.investments.AppPreferences
 import dev.gaborbiro.investments.NotificationManager
 import dev.gaborbiro.investments.data.DB
@@ -15,7 +16,9 @@ class FetchWorker(appContext: Context, workerParams: WorkerParameters) :
     private val repository: Repository by lazy { Repository() }
 
     override suspend fun doWork(): Result {
-        return doFetch()
+        return doFetch().also {
+            App.setWorkTimer()
+        }
     }
 
     private suspend fun doFetch(noApiKeyRefresh: Boolean = false): Result {
