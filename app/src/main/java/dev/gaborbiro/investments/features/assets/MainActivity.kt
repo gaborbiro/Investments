@@ -3,10 +3,15 @@ package dev.gaborbiro.investments.features.assets
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import android.widget.ImageView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import androidx.transition.AutoTransition
+import androidx.transition.Transition
+import androidx.transition.TransitionManager
 import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.XAxis
@@ -24,6 +29,7 @@ import dev.gaborbiro.investments.features.assets.model.MainUIModel
 import dev.gaborbiro.investments.hide
 import dev.gaborbiro.investments.observe
 import dev.gaborbiro.investments.show
+import dev.gaborbiro.investments.util.ConstraintTransitionListener
 import getHighlightedText
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -32,17 +38,26 @@ import java.text.DecimalFormat
 import java.text.NumberFormat
 import kotlin.math.absoluteValue
 
+
 @SuppressLint("SetTextI18n")
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private val viewModel: MainViewModel by viewModels()
+    private var appBarLayoutListener: AppBarLayout.OnOffsetChangedListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        initUI()
         viewModel.init()
         observe(viewModel.uiModel, ::render)
+    }
+
+    private fun initUI() {
+        initChart(binding.stocksSharesGraph, binding.stocksSharesMaximize)
+        initChart(binding.cryptoGraph, binding.cryptoMaximize)
+        initChart(binding.totalGraph, binding.totalMaximize)
     }
 
     private fun render(model: MainUIModel?) {
@@ -69,7 +84,8 @@ class MainActivity : AppCompatActivity() {
                 binding.cryptoValue.text = "£${model.cryptoTotal.bigMoney()}"
                 binding.totalValue.text = "£${model.total.bigMoney()}"
                 model.assets.forEach(::addAssetRowToUI)
-                setupToolbarAnimation()
+
+                appBarLayoutListener = setupToolbarAnimation()
 
                 setupChart(binding.stocksSharesGraph, model.stocksChart)
                 setupChart(binding.cryptoGraph, model.cryptoChart)
@@ -78,26 +94,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupChart(lineChart: LineChart, chartData: ChartUIModel) {
-        val dataSet = LineDataSet(
-            chartData.data.map { (day, value) -> Entry(day, value.toFloat()) },
-            ""
-        )
-        with(dataSet) {
-            setDrawValues(true)
-            color = ContextCompat.getColor(this@MainActivity, R.color.purple_200)
-            lineWidth = 3f
-            setDrawCircles(false)
-            valueTextColor = ContextCompat.getColor(this@MainActivity, R.color.white)
-            valueTextSize = 12f
-            valueFormatter = object : ValueFormatter() {
-                override fun getFormattedValue(value: Float): String {
-                    return "£${value.bigMoney()}"
-                }
-            }
-        }
+    private fun initChart(lineChart: LineChart, maximizeButton: ImageView) {
         with(lineChart) {
-            data = LineData(dataSet)
             setNoDataText("Loading...")
             setMaxVisibleValueCount(10)
             with(xAxis) {
@@ -130,25 +128,52 @@ class MainActivity : AppCompatActivity() {
             isHighlightPerDragEnabled = false
             description.isEnabled = false
             extraBottomOffset = 10f
-            animateY(1000, Easing.EaseInOutCubic)
+            extraTopOffset = 0f
             setTouchEnabled(true)
+        }
+        setupChartAnimation(lineChart, maximizeButton)
+    }
+
+    private fun setupChart(lineChart: LineChart, chartData: ChartUIModel) {
+        val dataSet = LineDataSet(
+            chartData.data.map { (day, value) -> Entry(day, value.toFloat()) },
+            ""
+        )
+        with(dataSet) {
+            setDrawValues(true)
+            color = ContextCompat.getColor(this@MainActivity, R.color.purple_200)
+            lineWidth = 3f
+            setDrawCircles(false)
+            valueTextColor = ContextCompat.getColor(this@MainActivity, R.color.white)
+            valueTextSize = 12f
+            valueFormatter = object : ValueFormatter() {
+                override fun getFormattedValue(value: Float): String {
+                    return "£${value.bigMoney()}"
+                }
+            }
+        }
+        with(lineChart) {
+            data = LineData(dataSet)
+            animateY(1000, Easing.EaseInOutCubic)
             invalidate()
         }
     }
 
-    private fun setupToolbarAnimation() {
-        val stocksY = binding.stocksSharesLabel.y
-        val cryptoY = binding.cryptoLabel.y
-        val totalY = binding.totalLabel.y
+    private fun setupToolbarAnimation(): AppBarLayout.OnOffsetChangedListener {
+        val stocksY = binding.stocksSharesGraph.y - binding.stocksSharesLabel.height
+        val cryptoY = binding.cryptoGraph.y - binding.cryptoLabel.height
+        val totalY = binding.totalGraph.y - binding.totalLabel.height
 
         val rowHeight = dpToPx(40)
-
-        binding.appbar.addOnOffsetChangedListener(AppBarLayout.OnOffsetChangedListener { appBar, offset ->
+        return AppBarLayout.OnOffsetChangedListener { appBar, offset ->
             val scrollY = -offset.toFloat()
             val open = 1 - (scrollY / appBar.totalScrollRange)
             binding.stocksSharesGraph.alpha = open * open
+            binding.stocksSharesMaximize.alpha = open * open
             binding.cryptoGraph.alpha = open * open
+            binding.cryptoMaximize.alpha = open * open
             binding.totalGraph.alpha = open * open
+            binding.totalMaximize.alpha = open * open
 
             binding.stocksSharesLabel.y = scrollY + stocksY
             binding.stocksSharesValue.y = scrollY + stocksY
@@ -168,7 +193,9 @@ class MainActivity : AppCompatActivity() {
                 binding.totalLabel.y = totalY
                 binding.totalValue.y = totalY
             }
-        })
+        }.also {
+            binding.appbar.addOnOffsetChangedListener(it)
+        }
     }
 
     private fun addAssetRowToUI(asset: AssetUIModel) {
@@ -201,6 +228,38 @@ class MainActivity : AppCompatActivity() {
                 binding.progress.show()
             } else {
                 binding.progress.hide()
+            }
+        }
+    }
+
+    private fun setupChartAnimation(lineChart: LineChart, maximizeButton: ImageView) {
+        maximizeButton.setOnClickListener {
+            with(ConstraintSet()) {
+                clone(binding.header)
+                val chartHeight = resources.getDimensionPixelSize(R.dimen.chart_height)
+                val tallChartHeight = resources.getDimensionPixelSize(R.dimen.chart_height_tall)
+                val (newHeight, labelCount) = if (lineChart.height > chartHeight) {
+                    maximizeButton.setImageResource(R.drawable.ic_fullscreen)
+                    lineChart.axisLeft.labelCount = 3
+                    lineChart.invalidate()
+                    chartHeight to 3
+                } else {
+                    maximizeButton.setImageResource(R.drawable.ic_fullscreen_exit)
+                    tallChartHeight to 9
+                }
+                constrainHeight(lineChart.id, newHeight)
+                binding.appbar.removeOnOffsetChangedListener(appBarLayoutListener)
+                TransitionManager.beginDelayedTransition(binding.header, AutoTransition().apply {
+                    addListener(object : ConstraintTransitionListener() {
+                        override fun onTransitionEnd(transition: Transition) {
+                            appBarLayoutListener = setupToolbarAnimation()
+                            binding.appbar.addOnOffsetChangedListener(appBarLayoutListener)
+                            lineChart.axisLeft.labelCount = labelCount
+                            lineChart.invalidate()
+                        }
+                    })
+                })
+                applyTo(binding.header)
             }
         }
     }

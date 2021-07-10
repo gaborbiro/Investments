@@ -39,7 +39,7 @@
                     <com.github.mikephil.charting.charts.LineChart
                         android:id="@+id/stocks_shares_graph"
                         android:layout_width="0dp"
-                        android:layout_height="164dp"
+                        android:layout_height="@dimen/chart_height"
                         android:layout_marginStart="@dimen/margin_large_16dp"
                         android:layout_marginEnd="@dimen/margin_default_8dp"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -49,15 +49,13 @@
 
                     <TextView
                         android:id="@+id/stocks_shares_label"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/margin_default_8dp"
                         android:layout_marginTop="@dimen/margin_default_8dp"
-                        android:layout_marginEnd="@dimen/margin_default_8dp"
                         android:text="Stocks &amp; Shares:"
                         android:textAppearance="@style/UIKit.TextAppearance.Body.Medium.Bold"
                         android:textColor="@color/white"
-                        app:layout_constraintEnd_toStartOf="@id/stocks_shares_value"
                         app:layout_constraintHorizontal_bias="0.0"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
@@ -66,20 +64,35 @@
                         android:id="@+id/stocks_shares_value"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/margin_default_8dp"
                         android:layout_marginTop="@dimen/margin_default_8dp"
-                        android:layout_marginEnd="@dimen/margin_default_8dp"
                         android:layout_marginBottom="8dp"
                         android:textAppearance="@style/UIKit.TextAppearance.Body.Medium.Bold"
                         android:textColor="@color/white"
                         android:textIsSelectable="true"
-                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/label_barrier"
                         app:layout_constraintTop_toTopOf="parent"
                         tools:text="£64296" />
+
+                    <ImageView
+                        android:id="@+id/stocks_shares_maximize"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_marginEnd="@dimen/margin_default_8dp"
+                        android:background="?selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:padding="@dimen/margin_half_4dp"
+                        android:src="@drawable/ic_fullscreen"
+                        app:layout_constraintBottom_toBottomOf="@id/stocks_shares_graph"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:tint="@color/white_alpha_50"
+                        />
 
                     <com.github.mikephil.charting.charts.LineChart
                         android:id="@+id/crypto_graph"
                         android:layout_width="0dp"
-                        android:layout_height="164dp"
+                        android:layout_height="@dimen/chart_height"
                         android:layout_marginStart="@dimen/margin_large_16dp"
                         android:layout_marginEnd="@dimen/margin_default_8dp"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -89,37 +102,50 @@
 
                     <TextView
                         android:id="@+id/crypto_label"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/margin_default_8dp"
                         android:layout_marginTop="@dimen/margin_large_16dp"
-                        android:layout_marginEnd="@dimen/margin_default_8dp"
                         android:text="Crypto:"
                         android:textAppearance="@style/UIKit.TextAppearance.Body.Medium.Bold"
                         android:textColor="@color/white"
                         android:textIsSelectable="true"
-                        app:layout_constraintEnd_toStartOf="@id/crypto_value"
+                        app:layout_constraintBaseline_toBaselineOf="@id/crypto_value"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/stocks_shares_graph"
                         />
 
                     <TextView
                         android:id="@+id/crypto_value"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/margin_large_16dp"
-                        android:layout_marginEnd="@dimen/margin_default_8dp"
+                        android:layout_marginStart="@dimen/margin_default_8dp"
+                        android:layout_marginTop="@dimen/margin_xlarge_24dp"
                         android:textAppearance="@style/UIKit.TextAppearance.Body.Medium.Bold"
                         android:textColor="@color/white"
-                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/label_barrier"
                         app:layout_constraintTop_toBottomOf="@id/stocks_shares_graph"
                         tools:text="£7545"
+                        />
+
+                    <ImageView
+                        android:id="@+id/crypto_maximize"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_marginEnd="@dimen/margin_default_8dp"
+                        android:background="?selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:padding="@dimen/margin_half_4dp"
+                        android:src="@drawable/ic_fullscreen"
+                        app:layout_constraintBottom_toBottomOf="@id/crypto_graph"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:tint="@color/white_alpha_50"
                         />
 
                     <com.github.mikephil.charting.charts.LineChart
                         android:id="@+id/total_graph"
                         android:layout_width="0dp"
-                        android:layout_height="164dp"
+                        android:layout_height="@dimen/chart_height"
                         android:layout_marginStart="@dimen/margin_large_16dp"
                         android:layout_marginEnd="@dimen/margin_default_8dp"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -129,15 +155,13 @@
 
                     <TextView
                         android:id="@+id/total_label"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/margin_default_8dp"
-                        android:layout_marginTop="@dimen/margin_default_8dp"
                         android:text="Total:"
                         android:textAppearance="@style/UIKit.TextAppearance.Heading.XSmall.Bold"
                         android:textColor="@color/white"
                         app:layout_constraintBaseline_toBaselineOf="@id/total_value"
-                        app:layout_constraintEnd_toStartOf="@id/total_value"
                         app:layout_constraintStart_toStartOf="parent"
                         />
 
@@ -145,14 +169,29 @@
                         android:id="@+id/total_value"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/margin_large_16dp"
-                        android:layout_marginEnd="@dimen/margin_default_8dp"
+                        android:layout_marginStart="@dimen/margin_default_8dp"
+                        android:layout_marginTop="@dimen/margin_xlarge_24dp"
                         android:textAppearance="@style/UIKit.TextAppearance.Heading.XSmall.Bold"
                         android:textColor="@color/white"
                         android:textIsSelectable="true"
-                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toEndOf="@id/label_barrier"
                         app:layout_constraintTop_toBottomOf="@id/crypto_graph"
                         tools:text="£71841"
+                        />
+
+                    <ImageView
+                        android:id="@+id/total_maximize"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_marginEnd="@dimen/margin_default_8dp"
+                        android:background="?selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:padding="@dimen/margin_half_4dp"
+                        android:src="@drawable/ic_fullscreen"
+                        app:layout_constraintBottom_toBottomOf="@id/total_graph"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:tint="@color/white_alpha_50"
                         />
 
                     <com.google.android.material.progressindicator.CircularProgressIndicator
@@ -168,6 +207,14 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
+                        />
+
+                    <androidx.constraintlayout.widget.Barrier
+                        android:id="@+id/label_barrier"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:barrierDirection="end"
+                        app:constraint_referenced_ids="stocks_shares_label,crypto_label,total_label"
                         />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>

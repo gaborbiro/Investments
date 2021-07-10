@@ -7,4 +7,7 @@
     <dimen name="margin_xxlarge_32dp">32dp</dimen>
 
     <dimen name="appbar_initial_height">120dp</dimen>
+
+    <dimen name="chart_height">148dp</dimen>
+    <dimen name="chart_height_tall">400dp</dimen>
 </resources>
