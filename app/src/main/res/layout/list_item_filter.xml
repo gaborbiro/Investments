@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/image_sort"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/margin_default_8dp"
+            android:src="@drawable/ic_sort"
+            app:layout_constraintBottom_toBottomOf="@id/radio_button_original"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/radio_button_original"
+            />
+
+        <androidx.appcompat.widget.AppCompatRadioButton
+            android:id="@+id/radio_button_original"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/margin_default_8dp"
+            android:text="Original"
+            app:layout_constraintEnd_toStartOf="@id/radio_button_day_change"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toEndOf="@id/image_sort"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatRadioButton
+            android:id="@+id/radio_button_day_change"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/margin_default_8dp"
+            android:layout_marginStart="@dimen/margin_default_8dp"
+            android:text="Day Change"
+            app:layout_constraintEnd_toStartOf="@id/radio_button_alltime_change"
+            app:layout_constraintStart_toEndOf="@id/radio_button_original"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatRadioButton
+            android:id="@+id/radio_button_alltime_change"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/margin_default_8dp"
+            android:layout_marginStart="@dimen/margin_default_8dp"
+            android:text="Gain/Loss"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/radio_button_day_change"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <RadioGroup
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:constraint_referenced_ids="radio_button_original,radio_button_day_change,radio_button_day_change"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

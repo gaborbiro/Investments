@@ -1,5 +1,7 @@
 package dev.gaborbiro.investments.features.assets.model
 
+import dev.gaborbiro.investments.features.assets.SortType
+
 sealed class MainUIModel {
 
     object Loading : MainUIModel()
@@ -13,6 +15,7 @@ sealed class MainUIModel {
         val stocksChart: ChartUIModel,
         val cryptoChart: ChartUIModel,
         val totalChart: ChartUIModel,
+        val sortType: SortType,
     ) : MainUIModel()
 
     class Error(val message: String) : MainUIModel()

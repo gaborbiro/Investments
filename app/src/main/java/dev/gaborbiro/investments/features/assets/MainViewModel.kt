@@ -21,30 +21,26 @@ class MainViewModel : ViewModel() {
 
     private val repository: Repository by lazy { Repository() }
 
-    fun init() = viewModelScope.launch {
+    fun loadData(sortType: SortType) = viewModelScope.launch {
         _uiModel.value = MainUIModel.Loading
-        doFetch()
+        doFetch(sortType)
     }
 
-    private suspend fun doFetch(noApiKeyRefresh: Boolean = false) {
+    private suspend fun doFetch(sortType: SortType, noApiKeyRefresh: Boolean = false) {
         val (data, error) = repository.doFetch()
         val stockTickers = stockTickers.map { it.symbol to it }.associate { it }
-        val cryptoTickers = cryptoTickers.map { it.symbol to it.amount }.associate { it }
+        val cryptoTickers = cryptoTickers.map { it.symbol to it.quantity }.associate { it }
         error?.let {
-            handleError(it, noApiKeyRefresh)
+            handleError(it, sortType, noApiKeyRefresh)
         }
         data?.let { (ftPrices, forex, binancePrices) ->
-            val (stocksTotal,
-                stocksGain,
-                cryptoTotal,
-                total,
-                assets,
-                recordData) = Mapper.generateModels(
+            val (stocksTotal, stocksGain, cryptoTotal, total, assets, recordData) = Mapper.generateModels(
                 stockTickers = stockTickers,
                 ftPrices = ftPrices,
                 cryptoTickers = cryptoTickers,
                 binancePrices = binancePrices.map { it.symbol to it.price }.associate { it },
                 usd2gbp = forex.rates.gbp,
+                sortType = sortType,
             )
             val dbModel = Mapper.map(recordData)
             val dao = DB.getInstance().recordsDAO()
@@ -62,12 +58,17 @@ class MainViewModel : ViewModel() {
                     stocksChart,
                     cryptoChart,
                     totalChart,
+                    sortType
                 )
             }
         }
     }
 
-    private suspend fun handleError(error: Error, noApiKeyRefresh: Boolean = false) {
+    private suspend fun handleError(
+        error: Error,
+        sortType: SortType,
+        noApiKeyRefresh: Boolean = false
+    ) {
         if (error is Error.FTServerError) {
             if (error.errors.any { it.reason == "MissingAPIKey" }) {
                 if (noApiKeyRefresh) {
@@ -79,7 +80,7 @@ class MainViewModel : ViewModel() {
                         handleError(Error.AppError("Could not refresh Api key"))
                     } else {
                         AppPreferences.setApiKey(apiKey)
-                        doFetch(noApiKeyRefresh = true)
+                        doFetch(sortType, noApiKeyRefresh = true)
                     }
                 }
             } else {

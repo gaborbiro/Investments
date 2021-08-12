@@ -23,6 +23,7 @@ import com.google.android.material.appbar.AppBarLayout
 import dev.gaborbiro.investments.R
 import dev.gaborbiro.investments.databinding.ActivityMainBinding
 import dev.gaborbiro.investments.databinding.ListItemAssetBinding
+import dev.gaborbiro.investments.databinding.ListItemFilterBinding
 import dev.gaborbiro.investments.features.assets.model.AssetUIModel
 import dev.gaborbiro.investments.features.assets.model.ChartUIModel
 import dev.gaborbiro.investments.features.assets.model.MainUIModel
@@ -30,6 +31,7 @@ import dev.gaborbiro.investments.hide
 import dev.gaborbiro.investments.observe
 import dev.gaborbiro.investments.show
 import dev.gaborbiro.investments.util.ConstraintTransitionListener
+import dev.gaborbiro.investments.util.CrossContainerRadioGroup
 import getHighlightedText
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -50,7 +52,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         initUI()
-        viewModel.init()
+        viewModel.loadData(SortType.ORIGINAL)
         observe(viewModel.uiModel, ::render)
     }
 
@@ -83,6 +85,8 @@ class MainActivity : AppCompatActivity() {
                 )
                 binding.cryptoValue.text = "£${model.cryptoTotal.bigMoney()}"
                 binding.totalValue.text = "£${model.total.bigMoney()}"
+                binding.container.removeAllViews()
+                addFilterRowToUI(model.sortType)
                 model.assets.forEach(::addAssetRowToUI)
 
                 appBarLayoutListener = setupToolbarAnimation()
@@ -195,6 +199,40 @@ class MainActivity : AppCompatActivity() {
             }
         }.also {
             binding.appbar.addOnOffsetChangedListener(it)
+        }
+    }
+
+    private fun addFilterRowToUI(sortType: SortType = SortType.ORIGINAL) {
+        val binding = DataBindingUtil.inflate<ListItemFilterBinding>(
+            layoutInflater,
+            R.layout.list_item_filter,
+            binding.container,
+            /* attachToParent: */ true
+        )
+        binding.radioButtonOriginal.isChecked = false
+        binding.radioButtonDayChange.isChecked = false
+        binding.radioButtonAlltimeChange.isChecked = false
+        when(sortType) {
+            SortType.ORIGINAL -> binding.radioButtonOriginal.isChecked = true
+            SortType.DAY_CHANGE -> binding.radioButtonDayChange.isChecked = true
+            SortType.GAIN_LOSS -> binding.radioButtonAlltimeChange.isChecked = true
+        }
+        CrossContainerRadioGroup(
+            binding.radioButtonOriginal,
+            binding.radioButtonDayChange,
+            binding.radioButtonAlltimeChange
+        ) {
+            when (it.id) {
+                R.id.radio_button_original -> {
+                    viewModel.loadData(SortType.ORIGINAL)
+                }
+                R.id.radio_button_day_change -> {
+                    viewModel.loadData(SortType.DAY_CHANGE)
+                }
+                R.id.radio_button_alltime_change -> {
+                    viewModel.loadData(SortType.GAIN_LOSS)
+                }
+            }
         }
     }
 

@@ -24,7 +24,7 @@ class FetchWorker(appContext: Context, workerParams: WorkerParameters) :
     private suspend fun doFetch(noApiKeyRefresh: Boolean = false): Result {
         val (data, error) = repository.doFetch()
         val stockTickers = stockTickers.map { it.symbol to it }.associate { it }
-        val cryptoTickers = cryptoTickers.map { it.symbol to it.amount }.associate { it }
+        val cryptoTickers = cryptoTickers.map { it.symbol to it.quantity }.associate { it }
         data?.let { (ftPrices, forex, binancePrices) ->
             val (_, _, _, _, _, recordData) = Mapper.generateModels(
                 stockTickers = stockTickers,

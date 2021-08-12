@@ -23,14 +23,13 @@ class App : Application() {
         fun setWorkTimer() {
             WorkManager.getInstance(appContext).cancelAllWorkByTag("sync")
 
-            val nextMondayMorning =
-                LocalDate.now().atStartOfDay().with(TemporalAdjusters.next(DayOfWeek.MONDAY))
+            val nextMondayMorning = LocalDate.now().atStartOfDay().plusDays(1L)
 
             val work = OneTimeWorkRequest.Builder(FetchWorker::class.java)
                 .setConstraints(
                     Constraints.Builder()
                         .setRequiredNetworkType(NetworkType.UNMETERED)
-                        .setRequiresDeviceIdle(true)
+//                        .setRequiresDeviceIdle(true)
                         .build()
                 )
                 .setInitialDelay(Duration.between(LocalDateTime.now(), nextMondayMorning))
