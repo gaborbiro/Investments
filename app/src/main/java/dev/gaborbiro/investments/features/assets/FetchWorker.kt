@@ -26,15 +26,14 @@ class FetchWorker(appContext: Context, workerParams: WorkerParameters) :
         val stockTickers = stockTickers.map { it.symbol to it }.associate { it }
         val cryptoTickers = cryptoTickers.map { it.symbol to it.quantity }.associate { it }
         data?.let { (ftPrices, forex, binancePrices) ->
-            val (_, _, _, _, _, recordData) = Mapper.generateModels(
+            val (_, _, _, _, _, _, recordData) = Mapper.generateModels(
                 stockTickers = stockTickers,
                 ftPrices = ftPrices,
                 cryptoTickers = cryptoTickers,
                 binancePrices = binancePrices.map { it.symbol to it.price }.associate { it },
                 usd2gbp = forex.rates.gbp,
             )
-            val dbModel = Mapper.map(recordData)
-            DB.getInstance().recordsDAO().insert(listOf(dbModel))
+            DB.getInstance().recordsDAO().insert(listOf(recordData))
             NotificationManager.showSyncSuccessNotification()
         }
         error?.let {

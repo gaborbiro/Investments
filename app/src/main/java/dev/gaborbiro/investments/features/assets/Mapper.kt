@@ -8,10 +8,11 @@ import dev.gaborbiro.investments.App
 import dev.gaborbiro.investments.R
 import dev.gaborbiro.investments.data.model.RecordDBModel
 import dev.gaborbiro.investments.features.assets.model.*
-import dev.gaborbiro.investments.getHighlightedText
+import getHighlightedText
 import java.lang.reflect.Type
 import java.time.LocalDate
 import java.time.ZoneOffset
+import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
@@ -45,19 +46,9 @@ object Mapper {
             val ticker: String
         )
 
-        /**
-         * Map it into a more convenient (temporary) format
-         */
-//        val ftPrices: Map<String, FTAsset> = ftPrices.data.items.map {
-//            it.basic.symbol to FTAsset(
-//                name = it.basic.name,
-//                price = it.timeSeries.lastSession.lastPrice,
-//                currency = it.basic.currency,
-//                dayChange = it.timeSeries.lastSession.let { it.lastPrice - it.previousClosePrice }
-//            )
-//        }.associate { it }
         var ftTotal = 0.0
         var ftGain = 0.0
+        var ftDayChange = 0.0
         var ftCost = 0.0
         var cryptoTotal = 0.0
         val ftAssets = ftPrices.data.items.map {
@@ -74,16 +65,20 @@ object Mapper {
             }
             val value = stockTicker.quantity * priceGBP
             val gain: Double = value - bookCostGBP
+            val dayChange = it.timeSeries.lastSession
+                .let { (it.lastPrice - it.previousClosePrice) } *
+                    (if (currency == "GBp") 0.01 else 1.0)
             ftGain += gain
             ftCost += bookCostGBP
             ftTotal += value
+            ftDayChange += dayChange
 
             FTAsset(
                 name = it.basic.name,
                 value = value,
                 price = price,
                 currency = currencySymbol,
-                dayChange = it.timeSeries.lastSession.let { it.lastPrice - it.previousClosePrice },
+                dayChange = dayChange,
                 gain = gain,
                 stockTicker = stockTicker,
                 ticker = ticker,
@@ -108,6 +103,7 @@ object Mapper {
         }
         val stocksTotal = ftTotal.roundToInt()
         val stocksGain = ftGain.roundToInt()
+        val stocksDayChange = ftDayChange.roundToInt()
         val cryptoTotal2 = cryptoTotal.roundToInt()
         val total = (ftTotal + cryptoTotal).roundToInt()
 
@@ -115,8 +111,8 @@ object Mapper {
             .let {
                 when (sortType) {
                     SortType.ORIGINAL -> it
-                    SortType.DAY_CHANGE -> it.sortedByDescending { it.dayChange }
-                    SortType.GAIN_LOSS -> it.sortedByDescending { it.gain }
+                    SortType.DAY_CHANGE -> it.sortedByDescending { abs(it.dayChange) }
+                    SortType.GAIN_LOSS -> it.sortedByDescending { abs(it.gain) }
                 }
             }
             .map {
@@ -126,7 +122,7 @@ object Mapper {
                 }
                 val detailsStr =
                     "${it.currency}${it.price.money()} " +
-                            "(${it.currency}${it.dayChange.money()}$directionChar) x " +
+                            "(${it.currency}${abs(it.dayChange).money()}$directionChar) x " +
                             "${it.stockTicker.quantity} (${it.ticker})"
                 val details =
                     detailsStr.getHighlightedText(directionChar, color, highlightForeground = true)
@@ -154,10 +150,11 @@ object Mapper {
         return CombinedModel.Builder(
             stocksTotal = stocksTotal,
             stocksGain = stocksGain,
+            stocksDayChange = stocksDayChange,
             cryptoTotal = cryptoTotal2,
             total = total,
             assets = ftDetails + cryptoDetails,
-            recordData = record
+            recordData = map(record)
         )
     }
 
@@ -184,7 +181,7 @@ object Mapper {
         return gson.fromJson<HashMap<String, Double>>(dbModel.record, dbJsonType)
     }
 
-    fun map(record: RecordData): RecordDBModel {
+    private fun map(record: RecordData): RecordDBModel {
         return RecordDBModel(
             day = LocalDate.now(ZoneOffset.UTC),
             zoneId = ZoneOffset.UTC,
@@ -214,10 +211,11 @@ class CombinedModel(
     data class Builder(
         val stocksTotal: Int,
         val stocksGain: Int,
+        val stocksDayChange: Int,
         val cryptoTotal: Int,
         val total: Int,
         val assets: List<AssetUIModel>,
-        val recordData: RecordData,
+        val recordData: RecordDBModel,
     )
 //    {
 //

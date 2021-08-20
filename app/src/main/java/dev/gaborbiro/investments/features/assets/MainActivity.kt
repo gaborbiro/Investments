@@ -27,9 +27,9 @@ import dev.gaborbiro.investments.databinding.ListItemFilterBinding
 import dev.gaborbiro.investments.features.assets.model.AssetUIModel
 import dev.gaborbiro.investments.features.assets.model.ChartUIModel
 import dev.gaborbiro.investments.features.assets.model.MainUIModel
-import dev.gaborbiro.investments.hide
+import dev.gaborbiro.investments.util.hide
 import dev.gaborbiro.investments.observe
-import dev.gaborbiro.investments.show
+import dev.gaborbiro.investments.util.show
 import dev.gaborbiro.investments.util.ConstraintTransitionListener
 import dev.gaborbiro.investments.util.CrossContainerRadioGroup
 import getHighlightedText
@@ -78,11 +78,12 @@ class MainActivity : AppCompatActivity() {
                         ContextCompat.getColor(this, it)
                     }
                 val stocksValue = "£${model.stocksTotal.bigMoney()} ($stocksGain)"
-                binding.stocksSharesValue.text = stocksValue.getHighlightedText(
+                binding.stocksSharesGain.text = stocksValue.getHighlightedText(
                     stocksGain,
                     gainColor,
                     highlightForeground = true
                 )
+                binding.stocksSharesDayChange.text = model.stocksDayChange
                 binding.cryptoValue.text = "£${model.cryptoTotal.bigMoney()}"
                 binding.totalValue.text = "£${model.total.bigMoney()}"
                 binding.container.removeAllViews()
@@ -180,7 +181,8 @@ class MainActivity : AppCompatActivity() {
             binding.totalMaximize.alpha = open * open
 
             binding.stocksSharesLabel.y = scrollY + stocksY
-            binding.stocksSharesValue.y = scrollY + stocksY
+            binding.stocksSharesGain.y = scrollY + stocksY
+            binding.stocksSharesDayChange.y = scrollY + stocksY
 
             if (scrollY > cryptoY - rowHeight) {
                 binding.cryptoLabel.y = scrollY + rowHeight
@@ -212,7 +214,7 @@ class MainActivity : AppCompatActivity() {
         binding.radioButtonOriginal.isChecked = false
         binding.radioButtonDayChange.isChecked = false
         binding.radioButtonAlltimeChange.isChecked = false
-        when(sortType) {
+        when (sortType) {
             SortType.ORIGINAL -> binding.radioButtonOriginal.isChecked = true
             SortType.DAY_CHANGE -> binding.radioButtonDayChange.isChecked = true
             SortType.GAIN_LOSS -> binding.radioButtonAlltimeChange.isChecked = true

@@ -1,5 +1,6 @@
 package dev.gaborbiro.investments.features.assets.model
 
+import android.text.SpannableString
 import dev.gaborbiro.investments.features.assets.SortType
 
 sealed class MainUIModel {
@@ -9,6 +10,7 @@ sealed class MainUIModel {
     class Data(
         val stocksTotal: Int,
         val stocksGain: Int,
+        val stocksDayChange: SpannableString,
         val cryptoTotal: Int,
         val total: Int,
         val assets: List<AssetUIModel>,

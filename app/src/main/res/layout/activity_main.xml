@@ -61,7 +61,7 @@
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <TextView
-                        android:id="@+id/stocks_shares_value"
+                        android:id="@+id/stocks_shares_gain"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="@dimen/margin_default_8dp"
@@ -73,6 +73,20 @@
                         app:layout_constraintStart_toEndOf="@id/label_barrier"
                         app:layout_constraintTop_toTopOf="parent"
                         tools:text="£64296" />
+
+                    <TextView
+                        android:id="@+id/stocks_shares_day_change"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/margin_default_8dp"
+                        android:layout_marginTop="@dimen/margin_default_8dp"
+                        android:layout_marginBottom="8dp"
+                        android:textAppearance="@style/UIKit.TextAppearance.Body.Medium.Bold"
+                        android:textColor="@color/white"
+                        android:textIsSelectable="true"
+                        app:layout_constraintStart_toEndOf="@id/stocks_shares_gain"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:text="£1000^" />
 
                     <ImageView
                         android:id="@+id/stocks_shares_maximize"

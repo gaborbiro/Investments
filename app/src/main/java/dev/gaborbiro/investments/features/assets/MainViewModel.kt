@@ -1,18 +1,23 @@
 package dev.gaborbiro.investments.features.assets
 
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.gaborbiro.investments.App
 import dev.gaborbiro.investments.AppPreferences
+import dev.gaborbiro.investments.R
 import dev.gaborbiro.investments.data.DB
 import dev.gaborbiro.investments.data.model.RecordDBModel
 import dev.gaborbiro.investments.features.assets.model.MainUIModel
 import dev.gaborbiro.investments.fetchNewAPIKey
 import dev.gaborbiro.investments.model.Error
+import getHighlightedText
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 
 class MainViewModel : ViewModel() {
 
@@ -34,7 +39,7 @@ class MainViewModel : ViewModel() {
             handleError(it, sortType, noApiKeyRefresh)
         }
         data?.let { (ftPrices, forex, binancePrices) ->
-            val (stocksTotal, stocksGain, cryptoTotal, total, assets, recordData) = Mapper.generateModels(
+            val (stocksTotal, stocksGain, stocksDayChange, cryptoTotal, total, assets, recordData) = Mapper.generateModels(
                 stockTickers = stockTickers,
                 ftPrices = ftPrices,
                 cryptoTickers = cryptoTickers,
@@ -42,16 +47,23 @@ class MainViewModel : ViewModel() {
                 usd2gbp = forex.rates.gbp,
                 sortType = sortType,
             )
-            val dbModel = Mapper.map(recordData)
             val dao = DB.getInstance().recordsDAO()
 
-            dao.insert(listOf(dbModel))
+            dao.insert(listOf(recordData))
             val dbData: List<RecordDBModel> = dao.get()
             val (stocksChart, cryptoChart, totalChart) = Mapper.map(dbData)
+
+            val (directionChar, color) = when (stocksDayChange >= 0) {
+                true -> "▲" to ContextCompat.getColor(App.appContext, R.color.green_light)
+                false -> "▼" to ContextCompat.getColor(App.appContext, R.color.red_light)
+            }
+            val stocksDayChangeStr = "(£${abs(stocksDayChange).bigMoney()}$directionChar)"
+
             CoroutineScope(Dispatchers.Main).launch {
                 _uiModel.value = MainUIModel.Data(
                     stocksTotal,
                     stocksGain,
+                    stocksDayChangeStr.getHighlightedText(directionChar, color, highlightForeground = true),
                     cryptoTotal,
                     total,
                     assets,
