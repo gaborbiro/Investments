@@ -65,7 +65,10 @@ class MainActivity : AppCompatActivity() {
     private fun render(model: MainUIModel?) {
         when (model) {
             is MainUIModel.Loading -> showProgress(true)
-            is MainUIModel.Error -> showError(model.message)
+            is MainUIModel.Error -> {
+                showProgress(false)
+                showError(model.message)
+            }
             is MainUIModel.Data -> {
                 showProgress(false)
                 val stocksGain = if (model.stocksGain < 0) {
@@ -252,6 +255,12 @@ class MainActivity : AppCompatActivity() {
         CoroutineScope(Dispatchers.Main).launch {
             binding.errorStatus.text = text
             binding.errorStatus.show()
+            binding.stocksSharesGraph.setNoDataText("Error")
+            binding.cryptoGraph.setNoDataText("Error")
+            binding.totalGraph.setNoDataText("Error")
+            binding.stocksSharesGraph.invalidate()
+            binding.cryptoGraph.invalidate()
+            binding.totalGraph.invalidate()
         }
     }
 

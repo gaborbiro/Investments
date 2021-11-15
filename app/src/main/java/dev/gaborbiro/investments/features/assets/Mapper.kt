@@ -52,16 +52,17 @@ object Mapper {
         var ftCost = 0.0
         var cryptoTotal = 0.0
         val ftAssets = ftPrices.data.items.map {
-            val ticker = it.basic.symbol
+            val ticker = it.basic?.symbol ?: throw MappingException("Missing TimeSeriesBasic ($it)")
             val stockTicker = stockTickers[ticker]!!
             val bookCost = stockTicker.purchases.sumOf { it.cost }
             val currency = stockTicker.currencyOverride ?: it.basic.currency
-            val rawPrice = it.timeSeries.lastSession.lastPrice
+            val timeSeries = it.timeSeries ?: throw MappingException("Missing TimeSeries ($it)")
+            val rawPrice = timeSeries.lastSession.lastPrice
             val (priceGBP, price, currencySymbol, bookCostGBP) = when (currency) {
                 "USD" -> Quad(rawPrice * usd2gbp, rawPrice, "$", bookCost * usd2gbp)
                 "GBP" -> Quad(rawPrice, rawPrice, "£", bookCost)
                 "GBp" -> Quad(rawPrice / 100.0, rawPrice / 100.0, "£", bookCost)
-                else -> throw IllegalStateException("Unsupported currency: $currency")
+                else -> throw MappingException("Unsupported currency: $currency")
             }
             val value = stockTicker.quantity * priceGBP
             val gain: Double = value - bookCostGBP
@@ -143,7 +144,9 @@ object Mapper {
             put(KEY_TOTAL, total.toDouble())
             putAll(cryptoTickers.mapValues { (ticker, _) -> binancePrices.getPoundValue(ticker) })
             putAll(ftPrices.data.items.map {
-                it.basic.symbol to it.timeSeries.lastSession.lastPrice
+                val symbol = it.basic?.symbol ?: throw MappingException("Missing TimeSeriesBasic ($it)")
+                val timeSeries = it.timeSeries ?: throw MappingException("Missing TimeSeries ($it)")
+                symbol to timeSeries.lastSession.lastPrice
             }.associate { it })
         }
 

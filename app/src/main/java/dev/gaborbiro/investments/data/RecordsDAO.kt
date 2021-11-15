@@ -11,7 +11,7 @@ interface RecordsDAO {
     suspend fun insert(records: Iterable<RecordDBModel>)
 
     @Query("SELECT * FROM records WHERE day > :since")
-    suspend fun get(since: LocalDate = LocalDate.now().minusMonths(1)): List<RecordDBModel>
+    suspend fun get(since: LocalDate): List<RecordDBModel>
 
     @Query("SELECT * FROM records WHERE id=:id")
     suspend fun get(id: String): RecordDBModel?

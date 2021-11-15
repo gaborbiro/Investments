@@ -4,7 +4,7 @@ class FTPrices(val data: TimeSeriesData) {
 
     class TimeSeriesData(val items: List<TimeSeriesItems>) {
 
-        class TimeSeriesItems(val basic: TimeSeriesBasic, val timeSeries: TimeSeries) {
+        class TimeSeriesItems(val basic: TimeSeriesBasic?, val timeSeries: TimeSeries?) {
 
             data class TimeSeriesBasic(
                 val symbol: String,
@@ -29,7 +29,7 @@ class FTPrices(val data: TimeSeriesData) {
             }
 
             override fun toString(): String {
-                return "TimeSeriesItems(${basic.symbol}, ${timeSeries.lastSession.lastPrice}${basic.currency}, ${timeSeries.timeSeriesData?.size ?: 0} entries)"
+                return "TimeSeriesItems(${basic?.symbol}, ${timeSeries?.lastSession?.lastPrice}, ${basic?.currency}, ${timeSeries?.timeSeriesData?.size ?: 0} entries)"
             }
         }
     }

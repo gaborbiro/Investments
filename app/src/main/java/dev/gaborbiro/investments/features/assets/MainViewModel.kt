@@ -11,12 +11,14 @@ import dev.gaborbiro.investments.R
 import dev.gaborbiro.investments.data.DB
 import dev.gaborbiro.investments.data.model.RecordDBModel
 import dev.gaborbiro.investments.features.assets.model.MainUIModel
+import dev.gaborbiro.investments.features.assets.model.MappingException
 import dev.gaborbiro.investments.fetchNewAPIKey
 import dev.gaborbiro.investments.model.Error
 import getHighlightedText
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import kotlin.math.abs
 
 class MainViewModel : ViewModel() {
@@ -28,7 +30,13 @@ class MainViewModel : ViewModel() {
 
     fun loadData(sortType: SortType) = viewModelScope.launch {
         _uiModel.value = MainUIModel.Loading
-        doFetch(sortType)
+        try {
+            doFetch(sortType)
+        } catch (e: MappingException) {
+            e.printStackTrace()
+            val message = e.message ?: "Unknown error"
+            _uiModel.value = MainUIModel.Error("Error mapping data ($message). Check logs")
+        }
     }
 
     private suspend fun doFetch(sortType: SortType, noApiKeyRefresh: Boolean = false) {
@@ -50,7 +58,7 @@ class MainViewModel : ViewModel() {
             val dao = DB.getInstance().recordsDAO()
 
             dao.insert(listOf(recordData))
-            val dbData: List<RecordDBModel> = dao.get()
+            val dbData: List<RecordDBModel> = dao.get(LocalDate.now().minusMonths(HISTORY_LENGTH_MONTHS))
             val (stocksChart, cryptoChart, totalChart) = Mapper.map(dbData)
 
             val (directionChar, color) = when (stocksDayChange >= 0) {

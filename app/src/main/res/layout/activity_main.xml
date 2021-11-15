@@ -244,7 +244,7 @@
             android:layout_marginHorizontal="@dimen/margin_default_8dp"
             android:layout_marginBottom="@dimen/margin_default_8dp"
             android:textAppearance="@style/UIKit.TextAppearance.Body.Small.Italic"
-            android:textColor="@android:color/holo_red_dark"
+            android:textColor="@color/red_light"
             android:visibility="gone"
             app:layout_anchor="@id/scroll_view"
             app:layout_anchorGravity="bottom"
