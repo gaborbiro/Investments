@@ -3,11 +3,9 @@ package dev.gaborbiro.investments.features.assets
 import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import dev.gaborbiro.investments.App
-import dev.gaborbiro.investments.AppPreferences
-import dev.gaborbiro.investments.NotificationManager
+import dev.gaborbiro.investments.*
 import dev.gaborbiro.investments.data.DB
-import dev.gaborbiro.investments.fetchNewAPIKey
+import dev.gaborbiro.investments.data.Repository
 import dev.gaborbiro.investments.model.Error
 
 class FetchWorker(appContext: Context, workerParams: WorkerParameters) :

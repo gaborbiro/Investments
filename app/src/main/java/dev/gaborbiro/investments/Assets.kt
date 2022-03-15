@@ -1,4 +1,4 @@
-package dev.gaborbiro.investments.features.assets
+package dev.gaborbiro.investments
 
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -6,13 +6,18 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 val stockTickers = listOf(
-    ft { // ASI Latin American Equity I Acc
+    ft { // ASI Latin American Equity Fund I Acc
         symbol = "GB00B4R0SD95:GBP"
         currencyOverride = "GBp"
         purchase {
             date = parseUTC("2021/06/28 11:15")
             amount = 445.48
             cost = 500.0 // GBP
+        }
+        purchase {
+            date = parseUTC("2021/12/16 11:15")
+            amount = 1088.50
+            cost = 1000.0 // GBP
         }
     },
     ft { // Alphabet Inc A
@@ -93,12 +98,12 @@ val stockTickers = listOf(
             cost = 2008.9 // GBP
         }
     },
-    ft { // Facebook Inc A
-        symbol = "FB:NSQ"
+    ft { // Enphase Energy Inc
+        symbol = "ENPH:NMQ"
         purchase {
-            date = parseUTC("2017/06/05 00:00")
-            amount = 29.0
-            cost = 4806.0 // USD
+            date = parseUTC("2021/12/17 11:15")
+            amount = 10.0
+            cost = 2100.0 // USD
         }
     },
     ft { // Fidelity China Consumer W Acc
@@ -115,6 +120,11 @@ val stockTickers = listOf(
             date = parseUTC("2021/03/01 14:31")
             amount = 11.0
             cost = 907.28 // USD
+        }
+        purchase {
+            date = parseUTC("2021/12/16 14:55")
+            amount = 20.0
+            cost = 1860.0 // USD
         }
     },
     ft { // GlaxoSmithKline PLC
@@ -147,6 +157,11 @@ val stockTickers = listOf(
             date = parseUTC("2021/06/28 08:03")
             amount = 250.0
             cost = 468.75 // GBP
+        }
+        purchase {
+            date = parseUTC("2021/12/16 10:13")
+            amount = 1000.0
+            cost = 1649.25 // GBP
         }
     },
     ft { // Microsoft Corp
@@ -318,11 +333,45 @@ val stockTickers = listOf(
             cost = 50.0 // USD
         }
     },
+    ft { // ABERDEEN STANDARD FUND
+        symbol = "GB00B7KVX245:GBP"
+        currencyOverride = "GBp"
+        purchase {
+            date = parseUTC("2021/12/16 11:15")
+            amount = 1109.632
+            cost = 2500.0 // GBP
+        }
+    },
+    ft { // Allianz Continental European Fund Class C
+        symbol = "GB00B3Q8YX99:GBX"
+        purchase {
+            date = parseUTC("2021/12/17 11:15")
+            amount = 668.06
+            cost = 2500.0 // GBP
+        }
+    },
+    ft { // HSBC American Index Fund Accumulation C
+        symbol = "GB00B80QG615:GBX"
+        currencyOverride = "GBP"
+        purchase {
+            date = parseUTC("2022/03/14 11:15")
+            amount = 1334.46
+            cost = 11846.0 // GBP
+        }
+    },
 )
 val cryptoTickers = listOf(
     crypto {
         symbol = "SOL"
-        amount = 66.815247936
+        amount = 21.4699
+    },
+    crypto {
+        symbol = "BTC"
+        amount = 0.0453395
+    },
+    crypto {
+        symbol = "ETH"
+        amount = 0.66211407
     },
 )
 

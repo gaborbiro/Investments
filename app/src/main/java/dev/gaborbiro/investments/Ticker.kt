@@ -1,4 +1,4 @@
-package dev.gaborbiro.investments.features.assets
+package dev.gaborbiro.investments
 
 import java.time.ZonedDateTime
 

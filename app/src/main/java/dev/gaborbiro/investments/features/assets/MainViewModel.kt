@@ -5,14 +5,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dev.gaborbiro.investments.App
-import dev.gaborbiro.investments.AppPreferences
-import dev.gaborbiro.investments.R
+import dev.gaborbiro.investments.*
 import dev.gaborbiro.investments.data.DB
+import dev.gaborbiro.investments.data.Repository
 import dev.gaborbiro.investments.data.model.RecordDBModel
 import dev.gaborbiro.investments.features.assets.model.MainUIModel
 import dev.gaborbiro.investments.features.assets.model.MappingException
-import dev.gaborbiro.investments.fetchNewAPIKey
 import dev.gaborbiro.investments.model.Error
 import getHighlightedText
 import kotlinx.coroutines.CoroutineScope
@@ -58,7 +56,9 @@ class MainViewModel : ViewModel() {
             val dao = DB.getInstance().recordsDAO()
 
             dao.insert(listOf(recordData))
-            val dbData: List<RecordDBModel> = dao.get(LocalDate.now().minusMonths(HISTORY_LENGTH_MONTHS))
+            val dbData: List<RecordDBModel> = dao.get(LocalDate.now().minusMonths(
+                HISTORY_LENGTH_MONTHS
+            ))
             val (stocksChart, cryptoChart, totalChart) = Mapper.map(dbData)
 
             val (directionChar, color) = when (stocksDayChange >= 0) {

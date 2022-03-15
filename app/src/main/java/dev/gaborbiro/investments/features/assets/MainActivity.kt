@@ -219,7 +219,7 @@ class MainActivity : AppCompatActivity() {
         binding.radioButtonAlltimeChange.isChecked = false
         when (sortType) {
             SortType.ORIGINAL -> binding.radioButtonOriginal.isChecked = true
-            SortType.DAY_CHANGE -> binding.radioButtonDayChange.isChecked = true
+            SortType.DAY_GAIN_LOSS -> binding.radioButtonDayChange.isChecked = true
             SortType.GAIN_LOSS -> binding.radioButtonAlltimeChange.isChecked = true
         }
         CrossContainerRadioGroup(
@@ -232,7 +232,7 @@ class MainActivity : AppCompatActivity() {
                     viewModel.loadData(SortType.ORIGINAL)
                 }
                 R.id.radio_button_day_change -> {
-                    viewModel.loadData(SortType.DAY_CHANGE)
+                    viewModel.loadData(SortType.DAY_GAIN_LOSS)
                 }
                 R.id.radio_button_alltime_change -> {
                     viewModel.loadData(SortType.GAIN_LOSS)

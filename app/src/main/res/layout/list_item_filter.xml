@@ -34,7 +34,7 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="@dimen/margin_default_8dp"
             android:layout_marginStart="@dimen/margin_default_8dp"
-            android:text="Day Change"
+            android:text="Day G/L"
             app:layout_constraintEnd_toStartOf="@id/radio_button_alltime_change"
             app:layout_constraintStart_toEndOf="@id/radio_button_original"
             app:layout_constraintTop_toTopOf="parent" />

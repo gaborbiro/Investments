@@ -1,4 +1,4 @@
-package dev.gaborbiro.investments.features.assets
+package dev.gaborbiro.investments
 
 const val FT_TIME_SERIES_URL =
     "https://markets.ft.com/research/webservices/securities/v1/time-series?symbols=%s&source=%s&dayCount=1&minuteInterval=1440"

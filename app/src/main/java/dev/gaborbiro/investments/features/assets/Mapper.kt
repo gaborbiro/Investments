@@ -6,6 +6,8 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import dev.gaborbiro.investments.App
 import dev.gaborbiro.investments.R
+import dev.gaborbiro.investments.Ticker
+import dev.gaborbiro.investments.data.model.FTPrices
 import dev.gaborbiro.investments.data.model.RecordDBModel
 import dev.gaborbiro.investments.features.assets.model.*
 import getHighlightedText
@@ -112,7 +114,7 @@ object Mapper {
             .let {
                 when (sortType) {
                     SortType.ORIGINAL -> it
-                    SortType.DAY_CHANGE -> it.sortedByDescending { abs(it.dayChange) }
+                    SortType.DAY_GAIN_LOSS -> it.sortedByDescending { abs(it.dayChange * it.stockTicker.quantity) }
                     SortType.GAIN_LOSS -> it.sortedByDescending { abs(it.gain) }
                 }
             }
@@ -244,5 +246,5 @@ class CombinedModel(
 }
 
 enum class SortType {
-    ORIGINAL, DAY_CHANGE, GAIN_LOSS
+    ORIGINAL, DAY_GAIN_LOSS, GAIN_LOSS
 }
